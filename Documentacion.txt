@@ -9,5 +9,130 @@
 9. Con Vanilla Javascript el código para hacer por ejemplo un boton que al pulsarlo cambie su texto es IMPERATIVO: le decimo el cómo hacerlo.
 10. Si tengo varios botones en código IMPERATIVO no escala bien, estop suele ser siempre así.
 
-Curso https://www.youtube.com/watch?v=7iobxzd_2wY   27:19 min
+11. Podemos inyectar cualquier componente react en cualquier parte de nuestra aplicación.
+12. Ej.
+        <div id="app"></div>
+
+    import ReactDOM from "https://esm.sh/react-dom@18.2.0/client"
+    const app = document.getElementById('app')
+    const root = ReactDOM.createRoot(app)           -> react es un conjunto de componentes en forma organizativa de árbol, por eso creamos el root o raiz
+    root.render('un texto')     -> funciona
+    root.render('<button>Guardar</button>')         -> NO funciona como html, lo pone como texto para evitar las inyecciones XSS
+
+13. Para poder renderizar un html requerimos crear un element y debemos importar React:
+    Ej.
+        import React from "https://esm.sh/react-dom@18.2.0"
+
+        const button = React.createElement('button', { "data-id": 123 }, 'Guardar')      -> el tercer parámetro es el envoltorio, y el segundo los atributos
+        root.render(button)     -> esto si renderiza un botón con el atributo data-id y el valor para el mismo de 123
+
+14. Si ahora queremos crear 3 botones y renderizarlos:
+    Ej.
+        const button1 = React.createElement('button', { "data-id": 123 }, 'Guardar 1')    
+        const button2 = React.createElement('button', { "data-id": 456 }, 'Guardar 2')
+        const button3 = React.createElement('button', { "data-id": 789 }, 'Guardar 3')
+        root.render(button1, button2, button3)     -> esto NO renderiza los botones porque solo podemos renderizar 1 elemento al mismo tiempo
+
+15. Una forma de hacer el renderizado de los 3 botones sería envolviéndolos en un div y renderizándolo:
+    Ej.
+        const button1 = React.createElement('button', { "data-id": 123 }, 'Guardar 1')    
+        const button2 = React.createElement('button', { "data-id": 456 }, 'Guardar 2')
+        const button3 = React.createElement('button', { "data-id": 789 }, 'Guardar 3')
+        const div = React.createElement('div', null, [button1, button2, button3])
+        root.render(div)
+
+16. Pero esto creará un div en nuestro html, y no queremos eso:
+    En react podemos crear un envoltorio vacio con React.Fragment:
+    Ej.
+        const div = React.createElement(React.Fragment, null, [button1, button2, button3])
+        root.render(div)
+
+    Esto renderiza los 3 botones pero sin poner un div adicional.
+
+17. El problema es que no hemos conseguido tener un código completamente DECLARATIVO, en la parte de createElement le estamos diciendo de forma IMPERATIVA lo que hay que hacer.
+    Para tenerlo en declarativo debemos usar JSX:
+    Esto es una extensión de Javascript que nos permite mediante algo similar al xml poner nuestra interfaz en formato declarativo:
+    Ej.
+        <React.Fragment>
+            <button data-id="123">Button 1</button>
+            <button data-id="456">Button 2</button>
+            <button data-id="789">Button 3</button>
+        </React.Fragment>
+    Si ponermos root.render(
+        <button data-id="123">Button 1</button>
+        <button data-id="456">Button 2</button>
+    )
+    petará porque solo espera un parámetro, un element. Por eso usamos el React.Fragment para envolver a todos los botones y pasarlo como un único element.
+
+    Esto equivale a lo que teníamos antes:
+    Ej.
+        const button1 = React.createElement('button', { "data-id": 123 }, 'Guardar 1')    
+        const button2 = React.createElement('button', { "data-id": 456 }, 'Guardar 2')
+        const button3 = React.createElement('button', { "data-id": 789 }, 'Guardar 3')
+        const div = React.createElement(React.Fragment, null, [button1, button2, button3])
+        root.render(div)
+
+18. IMPORTANTE: la transformación de JSX a el código javascript normal la hace mediante 2 herramientas: BABEL y SWC    
+    Es decir, el JSX es Javascript, pero mucho más entendible que el resultado final de teclearlo de la forma tradicional.
+
+19. JSX:
+    19.1. Expresiones (poniendo la const o variable entre llaves):
+        Ej. 
+            const name = 'Miguel'
+            <h1>Hola, {name}>
+
+        Se puede hacer lo mismo con funciones
+        Ej.
+            const element = <strong>Número aleatorio. {Math.random()}</strong>
+        Entre las {} solo podemos tener expresiones, NO declaraciones, por ejemplo un if no se puede.
+
+    19.2. Curiosidad: los atributos en JSX al ser Javascript y no html se nombran con la nomenclatura CamelCase
+        Ej.
+            <button tabIndex="1">     -> no se pone tab-index
+    
+20. Para hacer una app con react usaremos un empaquetador de aplicaciones:
+    20.1. Usar: npx create-react-app.dev my-app
+                cd my-app
+                npm start
+        Esto utiliza webpack que ahora ya está superado como empaquetador.
+    20.2. Usar Vite:
+        npm init -y
+        mkdir projects
+        cd projects
+        npm create vite@latest
+            Preguntará nombre del proyecto: 00-hola-mundo
+            React
+            TypeScript o JavaScript + SWC
+        cd 00-hola-mundo
+        npm install
+        npm run dev
+
+        Vite ya detecta archivos con JSX y los transpila con SWC a Javascript.
+    
+21. PRIMER PROYECTO:
+    Importante ver que en nuestro index.html tenemos el root e incluímos el punto de entrada de nuestra app:
+    Ej.
+        <body>
+            <div id="root"></div>
+            <script type="module" src="/src/main.jsx"></script>  -> punto de entrada
+        </body>
+
+    En nuestro main.jsx tenemos:
+    Ej.
+        import React from 'react'
+        import ReactDOM from 'react-dom/client'
+        import App from './App'
+        import './index.css'
+
+        ReactDOM.createRoot(document.getElementById('root')).render(
+            <React.StrictMode>
+                <App />
+            </React.StrictMode>
+        )
+
+22. para poner varios botones con código repetido lo que necesitamos es crear un Componente que tenga algunas cosas que cambian pero la base se
+    reutilice.
+    
+
+Curso https://www.youtube.com/watch?v=7iobxzd_2wY   54:00 min
 
