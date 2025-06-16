@@ -1,0 +1,13 @@
+1. Importante: se usa para todas las partes : cliente y servidor. Es una biblioteca y la podemos usar desde javascript sin empaquetadores como VITE.
+2. IMPORTANTE: web para consultas de todos los niveles: reactjs.wiki
+3. Se crea en 2011 para solventar la problematica de interfaces graficas de formularios y con el objetivo de impedir los ataques por XSS
+4. Con lo que aprendes de React Native también se pueden diseñar aplicaciones móviles.
+5. También se utiliza en aplicaciones de escritorio. Microsoft ha hecho React Native for Windows + macOS
+6. Soporte asegurado.
+7. Tiene una API estable en el tiempo. No hay grandes modificaciones en el tiempo.
+8. Comunidad inmensa.
+9. Con Vanilla Javascript el código para hacer por ejemplo un boton que al pulsarlo cambie su texto es IMPERATIVO: le decimo el cómo hacerlo.
+10. Si tengo varios botones en código IMPERATIVO no escala bien, estop suele ser siempre así.
+
+Curso https://www.youtube.com/watch?v=7iobxzd_2wY   27:19 min
+
