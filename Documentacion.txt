@@ -1,3 +1,9 @@
+
+CURSO REACT 2024 - Aprende desde cero  
+Curso https://www.youtube.com/watch?v=7iobxzd_2wY   
+---------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
+
 1. Importante: se usa para todas las partes : cliente y servidor. Es una biblioteca y la podemos usar desde javascript sin empaquetadores como VITE.
 2. IMPORTANTE: web para consultas de todos los niveles: reactjs.wiki
 3. Se crea en 2011 para solventar la problematica de interfaces graficas de formularios y con el objetivo de impedir los ataques por XSS
@@ -131,8 +137,335 @@
         )
 
 22. para poner varios botones con código repetido lo que necesitamos es crear un Componente que tenga algunas cosas que cambian pero la base se
-    reutilice.
+    reutilice. COMPONENTE: es una función que crea un elemento que luego podemos reutilizar.
+
+23. Podríamos haber creado una función de creación del botón y llamarla 3 veces:
+    Ej.
+        const createButton = ({text}) => {
+            // aquí podríamos darle estilos, añadir iconos y complicarlo todo lo que quisieramos
+            <button>{text}</button>
+        }
     
+        root.render(
+            <React.Fragment>
+                {createButton({ text: 'Button 1' })}
+                {createButton({ text: 'Button 2' })}
+                {createButton({ text: 'Button 3' })}
+            </React.Fragment>
+        )
 
-Curso https://www.youtube.com/watch?v=7iobxzd_2wY   54:00 min
+    Pero esto aunque estaría bien sigue siendo IMPERATIVO y no DECLARATIVO como hemos dicho que pretende React.
 
+24. Para hacer el componente del button en react sería de esta forma:
+    Ej.
+        Le ponemos un nombre al componente, no le indicamos que lo vamos a crear:
+        const Button = ({text}) => {
+            // aquí podríamos darle estilos, añadir iconos y complicarlo todo lo que quisieramos
+            <button>{text}</button>
+        }
+
+        Y para indicar que queremos tener 3 botones lo hacemos de forma declarativa:
+
+        root.render(
+            <React.Fragment>
+                <Button text = 'Button 1'></Button>
+                <Button text = 'Button 2'></Button>
+                <Button text = 'Button 3'></Button>
+            </React.Fragment>
+        )
+
+25. IMPORTANTE: los componentes tienes que seguir la nomenclatura Pascal Case. Esto es porque react no es capaz de diferenciar entre componentes y elementos html en caso de no cumplir con esta nomenclatura. 
+    Al empezar con mayúsculas sabe que es un componente. 
+    Para ver la diferencia de nomenclaturas:
+        PascalCase
+        camelCase    
+        snake_case
+        kebab-case
+
+26. ESTILOS en react:
+    Se pueden importar archivos css
+    También podemos usar estilos en línea, pero en lugar de ponerlos como un string debemos hacerlo como un objeto:
+    Ej.
+        <article style={{ display: 'flex', alignItems: 'center'}}></article>
+    Lo correcto es usar importacion de archivos css, pero a veces no se puede y hay que usar los estilos en línea. 
+    También en react native habrá que usar estilos en línea.
+
+27. IMPORTANTE: para determinar o indicar la clase en un elemento debemos utilizar className, puesto que class es una palabra reservada de Javascript.
+
+28. Para los estilos podemos usar BEM o SUIT. Puedes aplicar CSS Modules
+
+29. IMPORTANTE: existe una web con componentes de react ya creados y estilados: chakra-ui.com
+
+30. IMPORTANTE: un componente será reutilizable si podemos pasarle propiedades o parámetros para poder adaptarlo a nuestra necesidad. Si no tienen parámetros no es reutilizable, siempre será único.
+
+31. IMPORTANTE: Para devolver más de un elemento en react tenemos que utilizar el React.Fragment envolviéndolos, pero existe un atajo:
+        <> ...elementos... </>   es lo mismo que poner <React.Fragment> ...elementos... </React.Fragment>
+
+32. Cuando estilamos hay que tener presente que no pongamos estilos para arreglar un componente en el contexto actual pero que en otro contexto no quedaría bien, por ejemplo un margin-top de un elemento.
+    Para eso es mejor estilar el componente padre, o hacerlo de manera que siempre se vea bien.
+
+33. IMPORTANTE: para pasar un parámetro booleano a un componente:
+    1. Si le pasamos "true" lo interpreta como un string que escribe true no como booleano.
+    2. Hay que interpretarlo poniendolo entre llaves: {true}
+        Ej.
+            <TwitterFollowCard
+                key="key"
+                userName="nombre"
+                initialIsFollowing={false}
+                >
+                "Nombre"
+            </TwitterFollowCard>
+    3. Podemos ahorrarnos las llaves si le pasamos directamente una variable booleana
+        Ej.
+            <TwitterFollowCard
+                key="key"
+                userName="nombre"
+                initialIsFollowing
+                >
+                "Nombre"
+            </TwitterFollowCard>
+    4. No podemos pasarle un negado de una variable booleana.
+        Ej.
+            <TwitterFollowCard
+                key="key"
+                userName="nombre"
+                !initialIsFollowing
+                >
+                "Nombre"
+            </TwitterFollowCard>
+        Esto da error, hay que pasarle el {false}
+
+34. IMPORTANTE: también podemos pasarle funciones como props o parámetros al componente. Las funciones en javascript son de primera clase, con lo que podemos pasarlas como parámetros.
+    OJO: no es lo mismo pasar la función que pasar la ejecución de la función. Para pasar la ejecución es miFuncion = {funcionName()} mientras que para pasar la función es miFuncion = {funcionName}
+    donde funcionName es el nombre de la función.
+
+35. CLAVE ==>>  ¿ cuál es la diferencia entre un ELEMENTO y un COMPONENTE ?: un componente es como una factoría de elementos, es una función que al ejecutarla te devuelve un elemento.
+
+36. IMPORTANTE: las props deberían ser inmutables => no debemos modificar el valor de las props dentro del componente. Lo correcto es hacer una copia en una constante o variable y luego modificarla.
+
+37. CLAVE ==>> CHILDREN: es una prop especial que hace referencia a todos los hijos de un elemento, pueden ser uno o varios.
+    Ej.
+        <TwitterFollowCard
+            key={userName}
+            userName={userName}
+            initialIsFollowing={isFollowing}
+            >
+            {name}                  -> esto sería el children
+        </TwitterFollowCard>
+
+    En el componente podemos acceder a la prop como children:
+    Ej.
+        export function TwitterFollowCard ({ children, userName, initialIsFollowing }) {
+        const [isFollowing, setIsFollowing] = useState(initialIsFollowing)
+
+        console.log('[TwitterFollowCard] render with userName: ', userName)
+
+        const text = isFollowing ? 'Siguiendo' : 'Seguir'
+        const buttonClassName = isFollowing
+            ? 'tw-followCard-button is-following'
+            : 'tw-followCard-button'
+
+        const handleClick = () => {
+            setIsFollowing(!isFollowing)
+        }
+
+        return (
+            <article className='tw-followCard'>
+            <header className='tw-followCard-header'>
+                <img
+                className='tw-followCard-avatar'
+                alt='El avatar de midudev'
+                src={`https://unavatar.io/${userName}`}
+                />
+                <div className='tw-followCard-info'>
+                <strong>{children}</strong>
+                <span className='tw-followCard-infoUserName'>@{userName}</span>
+                </div>
+            </header>
+
+            <aside>
+                <button className={buttonClassName} onClick={handleClick}>
+                <span className='tw-followCard-text'>{text}</span>
+                <span className='tw-followCard-stopFollow'>Dejar de seguir</span>
+                </button>
+            </aside>
+            </article>
+            )
+        }
+        
+    En ese caso es un texto el contenido de children con el nombre.
+
+38. IMPORTANTE: normalmente lo más importante de un componente que además quieres que sea extensible y modificable al máximo debería ser un children.
+    No indicar children como un paso de prop normal, solo hace falta ponerlo en el componente no en el paso de parámetros, puesto que ya tienen entidad por sí sola.
+
+39. Se pueden pasar todas las props en un objeto mediante Rest Operator:
+    Ej.
+        const midu = {isFollowing: false, userName: 'midudev'}
+        const ferap = {isFollowing: true, userName: 'ferap'}
+
+        return (
+            <section className="App"
+                <TwitterFollowCard
+                        {...midu}
+                    >
+                    Miguel Angel
+                </TwitterFollowCard>
+                <TwitterFollowCard
+                        {...ferap}
+                    >
+                    Pedro Santos
+                </TwitterFollowCard>
+            </section>
+        )
+
+    IMPORTANTE: no es una buena práctica porque puedes enviar información innecesaria y porque puedes provocar que el componente se renderice sin necesidad. Además suele ser menos claro. Solo en determinados casos puede darse por bueno.
+
+40. ESTADO: foto del entorno y sus valores en un momento dado. 
+
+41. HOOK: te permiten añadir cierta funcionalidad a tus componentes. Utilidades de React para dotar de funcionalidad en el renderizado a tus componentes.
+
+42. Añadir un estado a un componente:
+    Ej.
+        const [isFollowing, setIsFollowing] = useState(initialIsFollowing)    -> donde lo inicializamos con initialIsFollowing
+            isFollowing    -> es el estado o nombre de la variable que lo contiene
+            setIsFollowing -> es la función que permite modificar ese estado 
+
+    IMPORTANTE: este estado es INTERNO, está a nivel del componente.
+
+43. IMPORTANTE: se llama React por su capacidad de reacción cuando hay un cambio de estado lo refleja en la UI renderizando las partes que hagan falta.
+
+44. DOM Virtual: React solo cambia la parte necesaria para que el renderizado muestre los cambios de estado, lo hace de manera quirúrjica. Para ello React hace una foto de lo que hay renderizado en pantalla (DOM) y cuando se produce
+    un cambio de estado busca las diferencias con el nuevo renderizado, este nuevo renderizado se genera en memória en forma de arbol antes de pintarlo (Virtual DOM) y entonces actualiza solo las partes que han cambiado comparando el DOM y el Virtual DOM. 
+    REACT renderiza el contenido de forma automática en 2 casos:
+        1. Cuando ha cambiado el estado interno de algún componente. 
+        2. Cuando un componente padre se vuelve a renderizar y propaga los cambios hacia abajo. Cuando se renderiza un componente se renderizan todos los componentes que hay debajo o implicados en su renderizado.
+            Esto pasa por tener estructura de árbol, solo se renderizan los hijos del componente que ha modificado su estado y él mismo, no los padres.        
+    CLAVE ==>>  se renderizan de nuevo TODOS los componentes hijo del padre que ha cambiado el estado, aunque no sufran cambios concretos dichos componentes hijo. PERO, cuando React va a renderizar el componente, padre con sus hijos solo
+    renderiza o pinta los cambios, por lo que los componentes hijos que no han modificado su html no se pintan de nuevo, aunque se han ejecutado dichos componentes para generar el html de renderizado de nuevo.
+    No sobreescribe el DOM, lo deja intacto. Este proceso se hace comparando el DOM con el Virtual DOM y se llama RECONCILIATION.
+
+45. CLAVE ==>> OPTIMIZACIONES: una optimización consiste en evitar que si ciertos componentes hijos no han cambiado nada no se rendericen ni ejecuten sus códigos aunque se modifique el componente padre.
+
+46. De hijos a padres no podemos pasar props, pero podemos pasar callbacks.
+
+47. No hay un hook para manejar el localStorage, pero como es javascript podremos crear nuestros propios hooks para eso y otras cosas.
+
+48. Los comentarios de toda la vida de javascript se pueden incorporar en un componente react:  // comentario,  /* comentarios */
+    Pero dentro de la parte de render (return()) del componente tendremos que utilizar { /* comentarios */ }  para que lo interprete, sino lo pondría como renderizado en pantalla.
+    No suele ser buena práctica poner comentarios dentro del render.
+
+49. Inicializamos los valores del estado en ocasiones si ya tienen valor previo a la entrada al componente con props, que se llamarán:  initialIsFollowing. 
+    Ej.
+        export function TwitterFollowCard ({ children, userName, initialIsFollowing }) {
+            const [isFollowing, setIsFollowing] = useState(initialIsFollowing)
+
+50. CLAVE ==>> Las props que se usan para inicializar un estado en un componente solo se aplican una vez, luego ya no se vuelven a usar aunque cambiemos su valor. Solo sirven para inicializar el estado la primera vez que renderizamos el componente.
+    Por lo que no sirve tener un estado en el componente padre y pasárselo a los hijos como prop de initialIsFollowing pretendiendo que se actualicen los estados de los hijos. 
+
+51. Utilizamos el componente para renderizar una lista de usuarios: como es javascript podemos usar un map de los usuarios y con eso ya lo tendríamos. Envolvemos entre llaves lo que queremos renderizar del componente padre:
+    Ej.
+        import { TwitterFollowCard } from './TwitterFollowCard.jsx'
+
+        const users = [
+        {
+            userName: 'midudev',
+            name: 'Miguel Ángel Durán',
+            isFollowing: true
+        },
+        {
+            userName: 'pheralb',
+            name: 'Pablo H.',
+            isFollowing: false
+        },
+        {
+            userName: 'PacoHdezs',
+            name: 'Paco Hdez',
+            isFollowing: true
+        },
+        {
+            userName: 'TMChein',
+            name: 'Tomas',
+            isFollowing: false
+        }
+        ]
+
+        export function App () {
+        return (
+            <section className='App'>
+            {
+                users.map(({ userName, name, isFollowing }) => (
+                <TwitterFollowCard
+                    key={userName}
+                    userName={userName}
+                    initialIsFollowing={isFollowing}
+                >
+                    {name}
+                </TwitterFollowCard>
+                ))
+            }
+            </section>
+        )
+        }
+
+52. IMPORTANTE: cuando renderizamos una lista o mapeo de elementos debemos indicar la KEY de cada uno de ellos o nos saldrá un warning en el explorador. Esto es porque así react puede identificar 
+    cada elemento del array cuando hace sus comparaciones con el DOM Virtual y el DOM. Este valor de la Key es y debe ser único. El index puede usarse como Key si sabemos que cada elemento tiene siempre 
+    el mismo índice, si van cambiando pueden darse problemas de rendering. El valor de la Key debe ser algo único de ese elemento.
+    OJO: usar key = {Math.random()} no tiene sentido, porque cada vez que se renderice tendremos un valor diferente para el mismo elemento.
+    Un Date.now tampoco sirve, ni en general nada aleatorio. Debe ser único para cada elemento. Con el Date.now() podemos tener duplicados y producirse duplicación de elementos renderizados.
+    Con el Math.random() puede ser que funcione el render, pero tendremos un problema de rendimiento ya que renderizará todos los elementos.
+
+---------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Curso de React desde cero: Crea un videojuego y una aplicación para aprender useState y useEffect
+https://www.youtube.com/watch?v=qkzcjwnueLA
+---------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
+
+53. Si modificas cualquier variable de estado debes hacerlo con su correspondiente función, sino react no sabrá que tiene que renderizar el componente afectado y sus hijos.
+    Ej.
+        // actualizar el tablero
+        const newBoard = [...board]  => hacemos una copia para poder modificar el tablero sin tocar el original
+        newBoard[index] = turn       => lo modificamos en la copia
+        setBoard(newBoard)           => cambiamos el estado con las modificaciones en el original
+
+54. Para evitar que nos deje modificar un valor ya existente en el tablero:
+    Ej.
+        // no actualizamos esta posición
+        // si ya tiene algo
+        if (board[index]) return
+
+55. CAMBIO de ESTADO: el cambio de estado en react es asíncrono, y puede por lo tanto tardar más que el alert.
+    Ej.
+        // revisar si hay ganador
+        const newWinner = checkWinnerFrom(newBoard)
+        if (newWinner) {
+            setWinner(newWinner)
+            alert(`el ganador es ${newWinner}`)  =>  OJO se pintará el alert en pantalla conforme has ganado pero no verás el último movimiento del usuario en pantalla, porque la actualización de los estados es asíncrona
+        }
+
+    Por eso usamos los valores a futuro para validaciones de cosas que ya ha hecho el usuario, pero que el estado todavía no regleja.
+
+56. Para poder resetear y volver a empezar de nuevo el juego basta con asegurar de volver a tener los estados como al principio del juego.
+    Ej.
+        const resetGame = () => {
+            setBoard(Array(9).fill(null))
+            setTurn(TURNS.X)
+            setWinner(null)
+        }
+
+57. Para chequear si hemos terminado el juego sin ganador:
+    Ej.
+        export const checkEndGame = (newBoard) => {
+            // revisamos si hay un empate
+            // si no hay más espacios vacíos
+            // en el tablero
+            return newBoard.every((square) => square !== null)    => si no existe ningun null es que hemos completado el tablero
+        }
+
+
+46min
+---------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
