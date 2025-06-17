@@ -526,6 +526,8 @@ https://www.youtube.com/watch?v=qkzcjwnueLA
 
     CLAVE ==>> usamos el useEffect para cargar listeners o apis de terceros que no tiene sentido que se ejecuten cada vez que se renderice el componente, así lo ejecutaremos cuando queramos.
 
+    No permiten parámetros las funciones useEffect.
+
 63. CLAVE ==>> Requisitos para instalar en los proyectos:
     1. npm install standard -D      => son reglas de linter 
     2. En el package.json aparcerá el standard recien instalado, y añadiremos lo siguiente:
@@ -561,8 +563,8 @@ https://www.youtube.com/watch?v=qkzcjwnueLA
             //    el efecto de nuevo
             return () => { // cleanup method
                 console.log('cleanup')
-                window.removeEventListener('pointermove', handleMove)           => CLAVE ==>> las suscripciones las tenemos que limpiar, porque persisten en el tiempo, react no las cancela
-            }
+                window.removeEventListener('pointermove', handleMove)           => CLAVE ==>> CLEAN useEffect: las suscripciones las tenemos que limpiar, 
+            }                                                                                 porque persisten en el tiempo, react no las cancela
         }, [enabled])
 
     CLAVE ==>> no podemos meter el useEffect en el condicional  if(enabled)   ni en ningún otro por lo que habíamos dicho de la posición de los hook en react.
@@ -572,16 +574,68 @@ https://www.youtube.com/watch?v=qkzcjwnueLA
         const [position, setPosition] = useState({ x: 0, y: 0 })
 
     
-1:33h
+65. CLAVE ==>> CLEAN useEffect: las suscripciones las tenemos que limpiar, porque persisten en el tiempo, react no las cancela. ¿Cuando hacer esas limpiezas? pues en el return() 
+    que podemos indicar para las funciones useEffect. Podemos declarar una función que haga estas limpiezas.
+    Ej.
+        return () => { // cleanup method
+            console.log('cleanup')
+            window.removeEventListener('pointermove', handleMove)           
+        }        
+
+    ¿Cuando se ejecuta este return? 
+        1. Siempre que se desmonte el componente
+        2. Cada vez que cambien las dependencias de la función useEffect -> se ejecuta antes del propio useEffect, realiza una limpieza previa antes del nuevo efecto.
+
+66. CLAVE ==>> Si no limpiamos las suscripciones en las funciones useEffect no solo tendremos un problema de funcionamiento, sino que se irán creando nuevas suscripciones ocupando 
+    recursos y penalizando el rendimiento del app.
+
+67. CLAVE ==>> Si queremos saber cuantas suscripciones se han realizado a un determinado evento en el chrome podemos ir a Consola y poner: getEventListeners(window)
+    Nos indicará un array con las suscripciones a cada evento en caso de existir más de una. Con esto podremos ver si estamos limpiando bien los eventos. También sirve para
+    determinar problemas de rendimiento en páginas web.
+
+68. React.StrictMode: se utiliza para que te de avisos si estás haciendo algo incorrecto, si estás utilizando react antiguo, y tiene una particularidad al montar los componentes: 
+    ejecuta el efecto del componente, ejecuta el cleanup del mismo componente y luego vuelve a ejecutar el efecto del componente. Esto solo pasa en desarrollo, y ejecuta entonces
+    2 veces los componentes. Es una ayuda para detectar malos funcionamientos en desarrollo. El React.StrictMode en producción lo ignora y es como si no existiera. En desarrollo 
+    si quisieramos podemos quitarlo y dejará de hacer el doble ejecutor.
+
+69. CLAVE ==>> React Developer Tools: son unas herramientas de desarrollo para cualquier explorador de windows de los más conocidos.
+    Una vez instalada nos indicará en un inconito superior derecho si estamos en desarrollo o producción, el primer caso aparece en rojo con un escarabajo de debug.
+    Si miramos al final hay 2 nuevas opciones: 
+        1. Profiler:
+            Ejecutamos nuestra aplicación después de darle a grabar en Profiler y luego miramos en profiler, podremos ver temas de rendimiento. Le tenemos que dar a grabar y despues de parar 
+            la grabación podremos estudiar el comportamiento de nuestra app web. Indicando las renderizaciones y qué las ha causado. 
+        2. Components:
+            Los nombres de los componentes en producción normalmente están minificados, salvo que hubieran puesto el DisplayName.
+            Pero en desarrollo lo veremos todo, y no solo los componentes, podremos ver sus props y estados y podremos cambiar sus valores. Veremos los hooks. Y como en html al hacer click sobre un
+            componente lo seleccionarán en la pantalla del la web. Esto nos permite ver si modificamos el estado como responde nuestra UI.
+            Es super potente porque te permite replicar situaciones en los cambios de estado por ejemplo que nos permetirá reproducir errores o momentos del web.
+            Otra cosa interesante es que muestra el arbol de componentes completo del web. Los valores solo los permite cambiar en desarrollo.
+
+70. Montar un useEffect para quitar / ocultar el mouse en pantalla:
+    Ej.
+        // change body className
+        useEffect(() => {
+            document.body.classList.toggle('no-cursor', enabled)
+
+            return () => {
+            document.body.classList.remove('no-cursor')
+            }
+        }, [enabled])
+
+71. No es una buena práctica usar un solo useEffect para hacerlo todo, es mejor tener varios cada uno con su objetivo.
+
+72. Dentro de Netlify tenemos app.netlify.com/drop que nos permite mediante arrastre de la carpeta dist creada por el npm run build. Si no nos registramos lo mantiene por 1 hora.
 
 
+---------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
 
 
+Prueba Técnica de React para Juniors y Trainee
+https://www.youtube.com/watch?v=XYpadB4VadY
+---------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
 
 
-
-
-
-1:08min
 ---------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------
