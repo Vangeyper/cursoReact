@@ -465,7 +465,49 @@ https://www.youtube.com/watch?v=qkzcjwnueLA
             return newBoard.every((square) => square !== null)    => si no existe ningun null es que hemos completado el tablero
         }
 
+58. Los hooks de useState no deben meterse dentro de un if porque react pierde las posiciones de los mismos y necesita tenerlas. No pueden estar dentro de lógica que cambie su
+    posición en el componente, esta debe ser unívoca y clara para react.
 
-46min
+59. Guardar el estado de la partida en localStorage:
+    Ej.
+        export const saveGameToStorage = ({ board, turn }) => {
+            // guardar aqui partida
+            window.localStorage.setItem('board', JSON.stringify(board))
+            window.localStorage.setItem('turn', turn)
+        }
+
+60. Recuperar el estado de la partida guardado y si existe inicializar el estado de la misma:
+    Ej.
+        const [board, setBoard] = useState(() => {
+            const boardFromStorage = window.localStorage.getItem('board')
+            if (boardFromStorage) return JSON.parse(boardFromStorage)
+            return Array(9).fill(null)
+        })
+    No podemos condicionar como hemos dicho en el punto 58 el hook, pero podemos condicionar el valor que inicializamos.
+
+    CLAVE ==>> la lectura del localStorage es lenta y debemos evitar hacerla si no es necesario. Si la ponemos dentro del useState del board solo se hará en los casos en que se 
+    inicialice el tablero, pero si la ponemos justo antes lo hará cada vez que se renderice el componente.
+
+    Lo mismo hacemos con los turnos:
+    Ej.
+        const [turn, setTurn] = useState(() => {
+            const turnFromStorage = window.localStorage.getItem('turn')
+            return turnFromStorage ?? TURNS.X
+        })
+
+61. Hay que acordarse de resetear los valores del localStorage cuando reseteamos el juego:
+    Ej.
+        const resetGame = () => {
+            setBoard(Array(9).fill(null))
+            setTurn(TURNS.X)
+            setWinner(null)
+
+            resetGameStorage()
+        }
+
+62. useEffect: es un hook que nos permite ejecutar código arbitrario cuando el componente se monta en el DOM y cada vez que cambian las dependencias que nosotros le indicamos
+
+
+1:08min
 ---------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------
