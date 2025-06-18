@@ -636,6 +636,306 @@ https://www.youtube.com/watch?v=XYpadB4VadY
 ---------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------
 
+Vamos a hacer la prueba sin tener plantilla inicial de React, es decir creando un proyecto con Vite pero con Vanilla y luego lo transformamos a React.
+
+73. creamos el proyecto Vanilla:
+    Ej.
+        npm create vite@latest
+            react-prueba-tecnica
+            Vanilla
+            JavaScript
+
+        cd react-prueba-tecnica
+
+74. Instalamos un plugin de react
+    Ej.
+        npm install @vitejs/plugin-react -E
+        code .
+
+75. Tenemos la plantilla pero si abrimos el package.json vemos que no tenemos react ni sus dependencias. Las instalamos:
+    Ej.
+        npm install react react-dom -E
+            donde react es la biblioteca de react que tiene los hooks y demás
+            y react-dom es la que tiene los bindings con el navegador
+
+76. Creamos el fichero vite.config.js o lo rellenamos con:
+    Ej.
+        import { defineConfig } from 'vite'
+        import react from '@vitejs/plugin-react'
+
+        export default defineConfig({
+            plugins: [react()]
+        })
+
+77. CLAVE ==>> Creamos el punto de entrada de la aplicación de react (es crear el elemento raiz de la misma y poner el primer componente):
+    Esto lo hacemos en nuestro main.js puesto que es el primer archivo que se carga a través de nuestro index.html
+    Ej.
+        import { createRoot } from 'react-dom/client'
+
+        const root = createRoot(document.getElementById('app'))
+        root.render(<h1>Hello, world!</h1>)    
+
+    CLAVE ==>> Problema: este código no se ejecuta porque requiere la extensión .jsx para hacerlo transpilando el código con SWC o similar. Renombramos a main.jsx.
+    También modificamos la referencia en index.html al nuevo archivo main.jsx
+
+78. Instalamos el eslint:
+    Ej.
+        npm install standard -D
+
+    Lo configuramos en el package.json añadiendo:
+    Ej.
+        ,
+        "eslintConfig": {
+            "extends": "./node_modules/standard/eslintrc.json"
+        }
+
+79. Creamos el Readme.md y añadimos la descripción de la prueba técnica:
+    Ej.
+        # Prueba técnica para Juniors y Trainees de React en Live Coding.
+
+        APIs:
+
+        - Facts Random: https://catfact.ninja/fact
+        - Imagen random: https://cataas.com/cat/says/hello
+
+        - Recupera un hecho aleatorio de gatos de la primera API y muestra una imagen de un gato con la primera palabra del hecho recuperado usando la segunda API.
+
+80. Creamos el App.jsx dentro de mi src/Components
+    Ej.
+        export function App () {
+            return (
+                <h1>App de gatitos</h1>   
+        )}
+
+    Importamos el componente en nuestro main.jsx y lo llamamos en el cuerpo:
+    Ej.
+        import { createRoot } from 'react-dom/client'
+        import { App } from './src/App.jsx'
+
+        const root = createRoot(document.getElementById('app'))
+        root.render(<App />)
+
+81. CLAVE ==>> conforme vamos programando debemos ir mostrando cosas en la pantalla que demuestren nuestro progreso.
+
+82. Definir la prueba en subtareas a realizar:
+    - Recupera un hecho aleatorio de gatos de la primera API
+    - Recuperar la primera palabra del hecho
+    - Muestra una imagen de un gato con la primera palabra del hecho recuperado usando la segunda API.
+
+    CLAVE ==>> concretar lo que devuelve la API y asegurar el endpoint que vamos a utilizar. Incluso lo pondríamos en una constante dentro de un template ya con las partes a cambiar:
+        Ej.
+            const CAT_ENDPOINT_RANDOM_FACT = 'https://catfact.ninja/fact'
+
+83. Recuperamos el useState y creamos un estado fact:
+    Ej.
+        import {useState} from "react"
+
+        export function App () {
+            const {fact, setFact} = useState('lorem ipsum what the fact')
+
+            CLAVE ==>> no podemos poner aquí un fetch de datos porque esto se ejecuta cada vez que renderizamos nuestro componente
+
+            CLAVE ==>> Usamos un useEffect para que la primera vez que se va a montar nuestro componente haga el fecth
+
+            CLAVE ==>> No olvidarse de poner la dependencia: []  o entraremos en bucle infinito y tendremos problemas 
+
+            useEffect (() => {
+                fetch('https://catfact.ninja/fact')
+                    .then(res => res.json())
+                    .then(data => setFact(data.fact))
+            }, [])
+
+            return (
+                <main>
+                    <h1>App de gatitos</h1>
+                    {fact && <p>{fact}</p>}         // Usamos el renderizado condicional como algo que ya sabemos hacer
+                </main>
+        )}
+
+    Un fetch devuelve una promesa que todavía no la tenemos en json, por lo que lo hacemos y después cambiamos el estado con los datos 
+    
+84. En useEffect si queremos poner async await debemos envolverlo:
+    Ej.
+        useEffect (() => {
+            async function getRandomFact () {                
+                const res = await fetch('https://catfact.ninja/fact')
+                const json = await res.json()
+                setFact(json.fact)                
+            }
+
+            getRandomFact()            
+        }, [])
+
+    CLAVE ==>> No podemos poner el async await directamente en el useEffect.
+
+85. Justo despues de obtener el fact buscamos la primera palabra del mismo:
+    Ej.
+        const firstWord = fact.split(' ')[0]
+
+    IMPORTANTE: si quieren que nos quedemos con las 3 primeras palabras:
+        Ej.
+            const firstWord = fact.split(' ').slice(0, 3).join(' ')
+            el split obtiene un array con tantas palabras como tengamos.
+            el slice obtiene las 3 primeras
+            el join las une con espacios en una cadena de texto
+
+    Una opción más óptima de este último caso es:
+        Ej.
+            const firstWord = fact.split(' ', 3).join(' ')
+
+86. CLAVE ==>> para buscar cosas del lenguaje como la función para separar string por un token: 
+    Ej. 
+        en el buscador de google ponemos: mdn separar string por separador
+
+87. CLAVE ==>> NO busquéis la solución a lo que os piden en google, buscar documentación de lo que necesitáis para resolverlo, pero no de ejemplos ya hechos.    
+
+88. usamos la segunda API con nuestra primera palabra. Para guardarla necesitamos otro estado:
+    Ej.
+        onst [imageUrl, setImageUrl] = useState()
+
+        useEffect (() => {
+            fetch(`https://cataas.com/cat/says/${threeFirstWords}?size=50&color=red&json=true`)
+                .then(res => res.json())
+                .then(data => {
+                    const {url} = data
+                    setImageUrl(`https://cataas.com${url}`)       // esto funcionaría pero se puede hacer mejor -> punto 18
+            })
+        }, [])
+
+89. Presentamos los datos obtenidos:
+    Ej.
+         return (
+                <main>
+                    <h1>App de gatitos</h1>
+                    {fact && <p>{fact}</p>}         // Usamos el renderizado condicional como algo que ya sabemos hacer
+                    {imageUrl && <img src={imageUrl} alt='Imágen extraida de la segunda API con 3 palabras de la primera API.' />}
+                </main>
+         )
+
+    Poner el contenido del alt con un texto coherente que explique lo que hace la imagen
+
+90. Razones por las que no poner en el estado la parte raiz de la url:
+    Porque en el estado tenemos que tener lo mínimo posible, y esto lo podemos tener fuera.
+
+91. Si os piden alinear al centro los componentes en pantalla:
+    Dais estilos:
+        En columna:  
+        Ej.
+            main {
+                display: flex;
+                flex-direction: column;
+                place-items: center;           es lo mismo que poner justify-content: center; y align-items: center; juntos
+                max-width: 800px;
+                margin: 0 auto;
+                font-family: system-ui;
+            }
+    
+        Si lo queremos en fila: 
+
+        Añadimos un section:
+        Ej.
+            return (
+                <main>
+                    <h1>App de gatitos</h1>
+                    <section>
+                        {fact && <p>{fact}</p>}         // Usamos el renderizado condicional como algo que ya sabemos hacer
+                        {imageUrl && <img src={imageUrl} alt='Imágen extraida de la segunda API con 3 palabras de la primera API.' />}
+                    </section>                    
+                </main>
+            )
+
+        cambiamos los estilos:
+        Ej.
+            section {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 2rem;   
+            }
+
+            section img {
+                max-width: 320px;
+                height: auto;
+            }
+
+92. CLAVE ==>> los efectos en react debería tener una sola responsabilidad, si les damos varias no es una buena práctica.
+    Esto distribuye las responsabilidades y evita la anidación.
+    Ej.
+        useEffect (() => {
+            async function getRandomFact () {                
+                const res = await fetch('https://catfact.ninja/fact')
+                const json = await res.json()
+                setFact(json.fact)                
+            }
+
+            getRandomFact()            
+        }, [])
+
+        useEffect (() => {
+            if (!fact) return
+            fetch(`https://cataas.com/cat/says/${threeFirstWords}?size=50&color=red&json=true`)
+                .then(res => res.json())
+                .then(data => {
+                    const {url} = data
+                    setImageUrl(`https://cataas.com${url}`)       // esto funcionaría pero se puede hacer mejor -> punto 18
+            })
+        }, [fact])
+
+93. CLAVE ==>> los errores se pueden gestionar en el useEffect, pero hay que tener en cuenta que entraremos en el catch si hay errores con la petición, no con la
+    respuesta. Esta la tenemos que controlar nosotros.
+    Ej.
+            useEffect (() => {
+                fetch('https://catfact.ninja/fact')
+                    .then(res => {
+                        if (!res.ok) throw new Error('Error fetching fact')    // asi llegaremos al catch también si hay un error con la petición
+                        return res.json()                        
+                    )
+                    .then(data => setFact(data.fact))
+                    .catch((err) => {
+                        // solo errores en la petición
+                    })
+            }, [])
+
+94. Normalmente nos pedirán añadir un botón que al darle refresquemos la imagen o hagamos alguna acción sobre el componente:
+    Ej.
+        async function getRandomFact () {                
+            const res = await fetch('https://catfact.ninja/fact')
+            const data = await res.json()
+            const { fact } = data
+            return fact
+        }
+
+        CLAVE ==>> si separamos la lógica en funciones para poder reutilizarlas no es buena práctica pasar estados o funciones de modificación de estados de nuestro 
+        componente a la función. Tiene que ser completamente reutilizable, lo que es react que se quede en el componente. Así si que podemos crearla en un archivo .js
+        y luego importarla.
+
+        useEffect (() => {
+            getRandomFact().then(setFact)               CLAVE ==>> sería lo mismo que escribir: getRandomFact().then(newfact => setFact(newfact))     
+        }, [])
+
+        const handleClick = async () => {
+            const newfact = await getRandomFact()
+            setFact(newfact)            
+        }
+
+        <button onclick={handleClick}>Get new fact</button>
+
+---------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+Custom Hooks + Testing con Playwright: Curso de React desde cero - Parte 4
+https://www.youtube.com/watch?v=x-LcbVw99o8
+---------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
+
+95. CLAVE ==>> Un Custom Hook es simplemente extraer lógica de nuestros componentes para poder reutilizarla en otros componentes
+
+
+
+
 
 ---------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------
