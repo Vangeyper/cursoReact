@@ -1172,9 +1172,242 @@ RESULTADO:
 
     La razón es porque ese renderizado debería ser un componente react!
 
-112. 
+112. Creamos un componente de Movies:
+    Ej.
+        function ListOfMovies ({ movies }) {
+            return (
+                <ul className='movies'>
+                {
+                    movies.map(movie => (
+                    <li key={movie.imdbID}>
+                        <h3>{movie.Title}</h3>
+                        <p>{movie.Year}</p>
+                        <img src={movie.Poster} alt={movie.title} />
+                    </li>
+                    ))
+                }
+                </ul>
+            )
+        }
+
+        function NoMoviesResults () {
+            return (
+                <p>No se encontraron películas para esta búsqueda</p>
+            )
+        }
+
+        export function Movies ({ movies }) {
+            const hasMovies = movies?.length > 0
+
+            return (
+                hasMovies
+                ? <ListOfMovies movies={movies} />
+                : <NoMoviesResults />
+            )
+        }
+
+113. OJO, no es una buena práctica utiliza los atributos tal cual están en la API, quedamos muy expuestos a cambios del API, es mejor usar un mapped:
+    Ej.
+        const mappedMovies = movies?.map(movie => ({
+            id: movie.imdbID,
+            title: movie.Title,
+            year: movie.Year,
+            poster: movie.Poster
+        }))
+
+    De esta forma si cambia la firma de la API solo tendremos que tocar en este sitio para adaptarlo.
+
+    Modificamos la función: 
+    Ej.
+        function ListOfMovies ({ movies }) {
+            return (
+                <ul className='movies'>
+                {
+                    movies.map(movie => (
+                    <li key={movie.id}>
+                        <h3>{movie.title}</h3>
+                        <p>{movie.year}</p>
+                        <img src={movie.poster} alt={movie.title} />
+                    </li>
+                    ))
+                }
+                </ul>
+            )
+        }
+
+114. Creamos un Custom Hook para todo lo de los movies:
+    Ej.
+        import { useRef, useState, useMemo, useCallback } from 'react'
+        import { searchMovies } from '../services/movies.js'
+
+        export function useMovies () {
+            const movies = responseMovies.Search
+
+            const mappedMovies = movies?.map(movie => ({
+                id: movie.imdbID,
+                title: movie.Title,
+                year: movie.Year,
+                poster: movie.Poster
+            }))
+        
+        return { movies: mappedMovies }
+        }
+
+        function App () {
+            const {movies} = useMovies()
+
+            return (
+                ...
+                <main>
+                    <Movies movies={movies} />
+                </main>        
+            )
+        }
+
+115. CLAVE ==>> Nuevo Hook useRef: te permite crear una referencia a un elemento del DOM, esta sería una explicación mala. En realidad es un hook que te permite crear una
+    referencia mutable que persiste durante todo el ciclo de vida de tu componente. Puedes guardar un contador y cada vez que cambie no vuelve a renderizar el componente como
+    con el useState. El useState cada vez que cambia renderiza el componente, pero en cambio el useRef no renderiza el componente al cambiar el valor.
+    Por esto es útil para guardar una referencia a un elemento del DOM y siempre lo tendremos accesible.
+    Ej.
+        const inputRef = useRef()
+
+        const handleClick = () => {
+            const inputEl = inputRef.current
+            const value = inputEl.value
+            console.log(value)
+        }
+
+        return (
+            <div className='page'>
+                <header>
+                    <h1>Buscador de películas</h1>
+                    <form className='form'>
+                        <input
+                            ref={inputRef}
+                            placeholder='Avengers, Star Wars, The Matrix...'
+                        />
+                        <button onclick={handleClick} type='submit'>Buscar</button>
+                    </form>
+                </header>
+
+                <main>
+                    <Movies movies={movies} />                
+                </main>
+            </div>
+        )
+
+116. No es una buena práctica aunque funciona hacer un handleClick de un botón tipo submit, es mejor hacer una handleSubmit asociado a ese botón.
+    Ej.
+        const inputRef = useRef()
+
+        const handleSubmit = (event) => {
+            event.preventDefault
+            const inputEl = inputRef.current
+            const value = inputEl.value
+            console.log(value)
+        }
+
+        return (
+            <div className='page'>
+                <header>
+                    <h1>Buscador de películas</h1>
+                    <form className='form' onSubmit={handleSubmit}>
+                        <input
+                            ref={inputRef}
+                            placeholder='Avengers, Star Wars, The Matrix...'
+                        />
+                        <button type='submit'>Buscar</button>
+                    </form>
+                </header>
+
+                <main>
+                    <Movies movies={movies} />                
+                </main>
+            </div>
+        )
+
+117. CLAVE ==>> Aunque no está mal hecho, es mejor práctica usar javascript de toda la vida para hacer lo mismo con FormData sobre el evento:
+    Ej.
+        const handleSubmit = (event) => {
+            event.preventDefault
+            const data = new window.FormData(event.target)   
+            const query = data.get('query')         
+            console.log(query)
+        }
+
+    Si hay muchos inputs podemos recuperarlos todos:
+    Ej.
+        const handleSubmit = (event) => {
+            event.preventDefault
+            const data = Object.fromEntries(new window.FormData(event.target))
+            console.log(data)            
+        }
+
+        return (
+            <div className='page'>
+                <header>
+                    <h1>Buscador de películas</h1>
+                    <form className='form' onSubmit={handleSubmit}>
+                        <input name='query'
+                            placeholder='Avengers, Star Wars, The Matrix...'
+                        />
+                        <input
+                            name='otro'
+                            placeholder='Avengers, Star Wars, The Matrix...'
+                        />
+                        <input
+                            name='otro2'
+                            placeholder='Avengers, Star Wars, The Matrix...'
+                        />
+                        <button type='submit'>Buscar</button>
+                    </form>
+                </header>
+
+                <main>
+                    <Movies movies={movies} />                
+                </main>
+            </div>
+        )
+
+    No user el useRef para tener la referencia de muchos campos, es mejor hacerlo con javascript usando FormData
+    Esta es la primera de las 2 forma de gestionar un formulario, es la NO CONTROLADA. Mediante el DOM, con un submit y demás. Es la forma más eficiente y rápida.
+
+118. SEGUNDA forma de gestionar un Form: CONTROLADA:
+    Vamos a crear un estado que controla los datos que escribimos en los inputs.
+    Ej.
+        const [query, setQuery] = useState('')
+
+        const handleChange = (event) => {
+            setQuery(event.target.value)
+        }
+
+        return (
+            <div className='page'>
+                <header>
+                    <h1>Buscador de películas</h1>
+                    <form className='form' onSubmit={handleSubmit}>
+                        <input onChange={handleChange} name='query'
+                            placeholder='Avengers, Star Wars, The Matrix...'
+                        />
+                        <input
+                            name='otro'
+                            placeholder='Avengers, Star Wars, The Matrix...'
+                        />
+                        <input
+                            name='otro2'
+                            placeholder='Avengers, Star Wars, The Matrix...'
+                        />
+                        <button type='submit'>Buscar</button>
+                    </form>
+                </header>
+
+                <main>
+                    <Movies movies={movies} />                
+                </main>
+            </div>
+        )
 
 
-20min
+43min
 ---------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------
