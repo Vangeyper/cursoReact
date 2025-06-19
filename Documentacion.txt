@@ -933,9 +933,168 @@ https://www.youtube.com/watch?v=x-LcbVw99o8
 
 95. CLAVE ==>> Un Custom Hook es simplemente extraer lógica de nuestros componentes para poder reutilizarla en otros componentes
 
+96. Creación de un Custom Hook -> debemos crear una función que empiece con la palabra useXXXXXXXX seguida del resto del nombre 
+    Ej.
+        function useCatImage () {}
+
+97. Uso del Custom Hook: 
+    Ej.
+        const prefijo = useCatImage()
+
+98. En nuestro caso es más complejo, para tener la lógica que recupera la imagen del gato creamos un fichero useCatImage.js. No requieren de un .jsx porque no tienen. 
+    Movemos dentro de la función la lógica de nuestro componente de react que ya estaba funcionando tal cual, con estado incluído:
+    Ej.
+        import { useEffect, useState } from 'react'
+
+        const CAT_PREFIX_IMAGE_URL = 'https://cataas.com'
+
+        export function useCatImage ({ fact }) {                                // los parámetros van entre llaves en este caso por buenas prácticas ver punto 101
+            const [imageUrl, setImageUrl] = useState()
+
+            // para recuperar la imagen cada vez que tenemos una cita nueva
+            useEffect(() => {
+                if (!fact) return
+
+                const threeFirstWords = fact.split(' ', 3).join(' ')
+
+                fetch(`https://cataas.com/cat/says/${threeFirstWords}?size=50&color=red&json=true`)
+                .then(res => res.json())
+                .then(response => {
+                    const { _id } = response
+                    const url = `/cat/${_id}/says/${threeFirstWords}`
+                    setImageUrl(url)
+                })
+            }, [fact])
+
+            return { imageUrl: `${CAT_PREFIX_IMAGE_URL}${imageUrl}` }
+        }
+
+99. Uso de nuestro custom hook:
+    En el componente que lo va a utilizar ya podemos llamarlo y obtener la imagen:  
+    Ej.
+        const { imageUrl } = useCatImage({ fact })
+
+    CLAVE ==>> Esta llamada no la podemos poner dentro de un if, ni un while ni en ninguno de los casos en que no se permite un hook, igual que cualquier hook de react.
+
+100. CLAVE ==>> La diferencia entre un Custom Hook y una función normal radica en que en un Custom Hook se pueden usar hooks de react y en una función normal NO.
+
+101. Pasando los parámetros entre llaves los estamos pasando como un objeto, con esto favorecemos la extensibilidad de nuestra función. Si en el futuro añadimos nuevos parámetros a la
+    función simplemente los añadimos al objeto separándolos por comas, y el orden es indiferente en el paso del parámetro. Además el nombre de cada elemento del objeto tiene que ser el que
+    hemos requerido en nuestra función mientras que en un parámetro normal podemos poner el nombre que queramos al parámetro que pasamos. Ganamos claridad, y facilidad de extensibilidad 
+    haciéndolo con un objeto.
+
+102. IMPORTANTE: evitar darle un nombre al custom hook que te diga en que está basada la implementación, ej. useFetchCat.  Tienen que ser una caja negra independiente de la implementación.
+
+103. Hacemos otro custom hook en nuestro proyecto para recuperar la cita en la página. Creamos el fichero useCatFact.js y ponemos:
+    Ej.
+        import { useState, useEffect } from 'react'
+        import { getRandomFact } from '../services/facts.js'
+
+        export function useCatFact () {
+            const [fact, setFact] = useState()          // su estado interno
+
+            const refreshFact = () => {
+                getRandomFact().then(newFact => setFact(newFact))       // llama a la función que hace el fetch a nuestra API y luego asigna el estado con el resultado
+            }
+
+            // para recuperar la cita al cargar la página
+            useEffect(refreshFact, [])                      // ejecuta la función refreshFact cada vez que se monta el componente
+
+            return { fact, refreshFact }    CLAVE ==>> como en el botón del App.jsx tenemos que hacer lo mismo que hace refreshFact la devolvemos también.
+        }
+
+    Donde la función getRandomFact estaría definida en el fichero fact.js como:
+    Ej.
+        const CAT_ENDPOINT_RANDOM_FACT = 'https://catfact.ninja/fact'
+
+        export const getRandomFact = async () => {
+            const res = await fetch(CAT_ENDPOINT_RANDOM_FACT)
+            const data = await res.json()
+            const { fact } = data
+            return fact
+        }
+
+    Para usarlo en nuestro App.jsx ponemos:
+    Ej.
+        import './App.css'
+        import { useCatImage } from './hooks/useCatImage.js'
+        import { useCatFact } from './hooks/useCatFact.js'
+
+        export function App () {
+        const { fact, refreshFact } = useCatFact()
+        const { imageUrl } = useCatImage({ fact })      // IMPORTANTE: esta línea no puede ir delante de la que utiliza useCatFact para definir nuestro fact
+
+        const handleClick = async () => {
+            refreshFact()                   // IMPORTANTE: hemos reutilizado una llamada a una función interna a nuestro hook que actualiza o modifica el estado interno del mismo sin exportar el propio setFact,
+                                                            es mejor que lo haga el custom hook internamente
+        }
+
+        return (
+            <main>
+            <h1>App de gatitos</h1>
+
+            <button onClick={handleClick}>Get new fact</button>
+
+            {fact && <p>{fact}</p>}
+            {imageUrl && <img src={imageUrl} alt={`Image extracted using the first three words for ${fact}`} />}
+            </main>
+        )
+        }  
+
+104. CLAVE ==>> siempre que veamos un useEffect y otros casos hay que preguntarse si no valdría la pena tenerlo en un custom hook. Porque sería lógica reutilizable que tendríamos fuera de nuestro componente.
+
+105. CLAVE ==>> si nos dicen que más haríamos si tenemos tiempo: 
+        1. Control de errores en nuestros componentes.
+        2. Testing del app.
+
+106. Test básico: 
+    Instalamos un testeador: npm init Playwright@latest
+        Indicamos JavaScript
+        carpeta tests
+        NO al añadir Github actions
+        SI a Instalar Playwright browser
+
+    Nos habrá creado un ejemplo en la carpeta tests. Lo modificamos con nuestro test:
+    Ej.
+        // @ts-check
+        import { test, expect } from '@playwright/test'       // OJO: si al ejecutar da error puede ser que estemos utilizando EMACS y no admita los Required del playwright, habrá que modifcarlos por imports como en este caso.
+
+        const CAT_PREFIX_IMAGE_URL = 'https://cataas.com'
+        const LOCALHOST_URL = 'http://localhost:5173/'
+
+        test('app shows random fact and image', async ({ page }) => {
+        await page.goto(LOCALHOST_URL)
+
+        const text = await page.getByRole('paragraph')     // recuperamos un párrafo de nuestra página, pilla el primero
+        const image = await page.getByRole('img')          // recuperamos una primera imagen, como solo gat una ya nos vale 
+
+        const textContent = await text.textContent()
+        const imageSrc = await image.getAttribute('src')
+
+        await expect(textContent?.length).toBeGreaterThan(0)                            // exige que tengamos un texto con contenido
+        await expect(imageSrc?.startsWith(CAT_PREFIX_IMAGE_URL)).toBeTruthy()           // exige que tengamos una imagen válida de alguna forma
+        })
+
+    Ejecutamos el test:
+    Ej.
+        npx playwright test
+        ... 1 passed (1.4s)
+
+    
+
+---------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
 
 
-13:19
+
+
+Aprende a pasar una Prueba Técnica de React. Entiende useMemo, useCallback y useRef
+https://www.youtube.com/watch?v=GOEiMwDJ3lc
+---------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
+
+
+
 
 ---------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------
