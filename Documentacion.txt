@@ -1093,8 +1093,88 @@ https://www.youtube.com/watch?v=GOEiMwDJ3lc
 ---------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------
 
+Prueba: Crea una aplicación para buscar películas
+
+API a usar: - https://www.omdbapi.com/
+Consigue la API Key en la propia página web registrando tu email.
+
+Requerimientos:
+
+✅ Necesita mostrar un input para buscar la película y un botón para buscar.
+
+✅ Lista las películas y muestra el título, año y poster.
+
+✅ Que el formulario funcione
+
+✅ Haz que las películas se muestren en un grid responsive.
+
+✅ Hacer el fetching de datos a la API
+
+Primera iteración:
+
+✅ Evitar que se haga la misma búsqueda dos veces seguidas.
+
+✅ Haz que la búsqueda se haga automáticamente al escribir.
+
+✅ Evita que se haga la búsqueda continuamente al escribir (debounce)
 
 
+RESULTADO:
 
+107. Creamos el proyecto con VITE: 
+    Ej.
+        npm create vite@latest
+        cd 05-react-buscador-peliculas
+        npm install
+        code .
+    
+108. En el placeholder de un input no se pone un mensaje: escribe aquí tu película...  es más correcto poner un ejemplo de lo que pondrías: ej. Avengers, Matrix, ...
+    
+109. Ir a la API y mirar si hay una api que nos permita buscar. Probarla y mirar el resultado. Conesto sabremos lo que vamos a tener que tratar. No usar Console.log para ver el resultado,
+    ni empezar a desarrollar sin haber visto lo que devuelve y requiere la llamada a la API.
+
+    Probar también a buscar algo que no existe y ver que devuelve. 
+    Crear mocks de estas respuestas para tenerlas en nuestro proyecto sin necesidad de API.
+    Dentro del directorio mocks creamos: no-results.json y with-results.json.
+
+110. Ya podemos mostrar y trabajar en los datos de la web sin tener el fetch, simplemente importando los mocks:
+    Ej.
+        import withResults from '.mocks/with-results.json'
+        import withoutResults from '.mocks/no-results.json'
+    
+    Ahora podemos acceder a los objetos json y podremos ver los campos / tipos de que constan, asi como comprobar si tenemos datos y hacer un renderizado condicional.
+
+111. Es una mala práctica hacer esto:
+    Ej.
+        const renderMovies = () => {
+            return (
+                <ul>
+                    {
+                        movies.map( movie => (
+                            <li key={movie.imdbID}>
+                                <h3>{movie.Tittle}</h3>
+                                <p>{movie.Year}</p>
+                                <img src={movie.Poster} alt={movie.Title} />
+                            </li>
+                        ))
+                    }
+                </ul>
+            )
+        }
+
+        <main>
+            {
+                hasMovies 
+                    ? renderMovies()
+                    : renderNoResults()
+            }
+        </main>
+
+    La razón es porque ese renderizado debería ser un componente react!
+
+112. 
+
+
+20min
 ---------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------
