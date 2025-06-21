@@ -1237,7 +1237,7 @@ RESULTADO:
 
 114. Creamos un Custom Hook para todo lo de los movies:
     Ej.
-        import { useRef, useState, useMemo, useCallback } from 'react'
+        import { useRef, useState } from 'react'
         import { searchMovies } from '../services/movies.js'
 
         export function useMovies () {
@@ -1296,6 +1296,18 @@ RESULTADO:
             </div>
         )
 
+    Por ejemplo si en un componente ponemos:
+    Ej.
+        const current = useRef(0)       => es un valor que persiste entre renders
+        counter.current++
+        console.log(counter.current)
+
+    En este caso veríamos que al renderizarse el componente se aumentaría el valor escrito, sería un contador de renderizados. A pesar de la inicialización a 0.
+    Por ejemplo con una variable normal no pasaría:
+        let i = 0
+        i++ 
+        console.log(i)      => siempre que se renderice pintará 1
+
 116. No es una buena práctica aunque funciona hacer un handleClick de un botón tipo submit, es mejor hacer una handleSubmit asociado a ese botón.
     Ej.
         const inputRef = useRef()
@@ -1332,6 +1344,7 @@ RESULTADO:
             event.preventDefault
             const data = new window.FormData(event.target)   
             const query = data.get('query')         
+            // aquí validamos los datos introducidos
             console.log(query)
         }
 
@@ -1369,16 +1382,46 @@ RESULTADO:
             </div>
         )
 
-    No user el useRef para tener la referencia de muchos campos, es mejor hacerlo con javascript usando FormData
-    Esta es la primera de las 2 forma de gestionar un formulario, es la NO CONTROLADA. Mediante el DOM, con un submit y demás. Es la forma más eficiente y rápida.
+    No user el useRef para tener la referencia de muchos campos, es mejor hacerlo con javascript usando FormData 
+    Ej.
+        const { query } = Object.fromEntries(new window.FormData(event.target))   => como en el ejemplo anterior pero sabiendo que tenemos un objeto con el name query
+    Esta es la primera de las 2 forma de gestionar un formulario, es la NO CONTROLADA POR REACT. Mediante el DOM, con un submit y demás. Es la forma más eficiente y rápida.
+    En la forma NO CONTROLADA POR REACT también encontramos el required, pattern = '' en el Input de javascript, el onInvalid en el onSubmit, ...
 
-118. SEGUNDA forma de gestionar un Form: CONTROLADA:
+118. SEGUNDA forma de gestionar un Form: CONTROLADA POR REACT:
     Vamos a crear un estado que controla los datos que escribimos en los inputs.
     Ej.
         const [query, setQuery] = useState('')
+        const [error, setError] = useState(null)
 
         const handleChange = (event) => {
-            setQuery(event.target.value)
+            setQuery(event.target.value)        => actualiza el estado con el nuevo valor que ha introducido el usuario
+            
+            // VALIDACIONES OPCION A
+            // ojo no validar sobre el valor del estado query porque no garantizamos que se halla asignado al ser asíncrono
+            // para ello asignamos el value del evento y validamos sobre el
+            const newQuery = event.target.value
+            if (newQuery == '') {
+                setError('No se puede buscar una película vacía!')
+                return
+            }
+
+            if (newQuery.match(/^\d+$/)) {
+                setError('No se puede buscar una película con un número!')
+                return
+            }
+
+            if (newQuery.length < 3) {
+                setError('La búsqueda debe tener al menos 3 caracteres!')
+                return
+            }
+
+            setError(null)
+        }
+
+        const handleSubmit = (event) => {
+            event.preventDefault
+            console.log({ query })              => ya tenemos el valor del input del usuario en el estado        
         }
 
         return (
@@ -1399,6 +1442,7 @@ RESULTADO:
                         />
                         <button type='submit'>Buscar</button>
                     </form>
+                    {error && <p className='error'>{error}</p>}
                 </header>
 
                 <main>
@@ -1407,7 +1451,622 @@ RESULTADO:
             </div>
         )
 
+    Esta forma CONTROLADA POR REACT tiene el inconveniente de que al cambiar el estado de valor fuerza la renderización de la pantalla o componente. Como ventaja tener el código más
+    ordenado y no preocuparte del DOM para las validaciones que se pueden hacer de muchas maneras. Hay un hook que ayuda a paliar esta pérdida de eficiencia.
+    Otra ventaja es que puedes hacer pre-validaciones en la forma Controlada de forma fácil mientras que en la forma controlada necesitarías mucho javascript para hacerlo.
+    Ej.
+        const handleChange = (event) => {
+            const newQuery = event.target.value
+            if (newQuery.startsWith(' ')) return    => si intentamos empezar con espacio no nos lo dejará hacer
+            setQuery(newQuery)  
+        }  
+    En este caso evitamos que el estado se actualice y por lo tanto no se renderiza el componente.          
 
-43min
+    De todas formas la forma NO CONTROLADA POR REACT es mucha más eficiente y podría ser la recomendada. 
+
+    En la forma controlada puedes hacer las validaciones en el handleChange: VALIDACIONES OPCION A
+    También podríamos usar un useEffect:
+    Ej.
+        useEffect ( () => {
+            // VALIDACIONES OPCION B
+            if (query == '') {
+                setError('No se puede buscar una película vacía!')
+                return
+            }
+
+            if (query.match(/^\d+$/)) {
+                setError('No se puede buscar una película con un número!')
+                return
+            }
+
+            if (query.length < 3) {
+                setError('La búsqueda debe tener al menos 3 caracteres!')
+                return
+            }
+
+            setError(null)
+        }, [search])
+
+    (se recomienda el uso de ZOT para este tipo de validaciones)
+
+119. Lo mejor como siempre es dejar limpios nuestros componentes de lógica sacando toda como custom hook. 
+    Ej.
+        function useSearch () {
+            const [search, updateSearch] = useState('')
+            const [error, setError] = useState(null)
+            const isFirstInput = useRef(true)           => uso del useRef como banderita para saber si es la primera vez que validamos o no 
+
+            useEffect(() => {
+                if (isFirstInput.current) {
+                    isFirstInput.current = search === ''        => en cuanto el usuario teclee algo en el input dejará de ser cierto el useRef banderita
+                    return
+                }
+
+                if (search === '') {
+                setError('No se puede buscar una película vacía')
+                return
+                }
+
+                if (search.match(/^\d+$/)) {
+                setError('No se puede buscar una película con un número')
+                return
+                }
+
+                if (search.length < 3) {
+                setError('La búsqueda debe tener al menos 3 caracteres')
+                return
+                }
+
+                setError(null)
+            }, [search])
+
+            return { search, updateSearch, error }
+            }
+
+            function App () {
+            const [sort, setSort] = useState(false)
+            const { search, updateSearch, error } = useSearch()
+
+120. CLAVE ==>> otro uso del useRef consiste en evitar validaciones iniciales que se basan en los estados iniciales y no en las entradas del usuario.
+    Ej.
+        useEffect(() => {
+            if (search === '') {
+                setError('No se puede buscar una película vacía')
+                return
+            }   
+        })     
+    Este useEffect dará el mensaje de error de 'No se puede buscar una película vacía' nada más entrar porqué validará el contenido inicial vacío del estado de search.
+    Para evitar esto se usa el useRef a modo de banderita como en el ejemplo anterior: const isFirstInput = useRef(true) 
+    El valor lo chequeamos al principio del useEffect y en caso de ser cierto no hacemos nada, pero chequeamos si el usuario ha entrado algo en el input y cambiamos su valor
+    a false en caso afirmativo. La ventaja es que el useRef no renderiza el componente de nuevo al cambiar el valor.
+
+121. Sabemos que debemos usar un custom hook y no un helper típico de javascript cuando por un lado hay un useEffect en nuestro código a extraer. En general si hay algún hook
+    en nuestro código lo mejor es usar un custom hook, sino usamos un helper de JS.
+
+122. CLAVE ==>> GRID RESPONSIVE
+    Ej.
+        function ListOfMovies ({ movies }) {
+            return (
+                <ul className='movies'>
+                {
+                    movies.map(movie => (
+                    <li className='movie'
+                        key={movie.id}>
+                        <h3>{movie.title}</h3>
+                        <p>{movie.year}</p>
+                        <img src={movie.poster} alt={movie.title} />
+                    </li>
+                    ))
+                }
+                </ul>
+            )
+        }     
+
+    Estilos aplicados:
+    Ej.
+        .page {
+            display:flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            max-width: 80rem;        
+        }
+        main {
+            display: flex;
+            justify-content: center;
+            width: 100%;                    => importante si queremos que luego se muestre la grid
+        }
+        form {
+            align-items: center;
+            display: flex;
+            justify-content: center;
+        }
+        .movies {
+            list-style: none;
+            margin: 0;
+            padding: 0; 
+
+            display: grid;
+            width: 100%;
+            grid-template-columns: repeat( auto-fit, minmax(20rem, 1fr) );  => se auto ocupa todo el espacio disponible con un mínimo de 20rem y si no puede se reparte con 1fr por película
+            gap: 3.2rem;
+        }   
+
+        .movie {
+            text-align: center;
+        }        
+
+        .movie h3, movie p {
+            margin: 0;
+        }
+
+        .movi img {
+            border-radius: 0.8rem;
+            margin-top: 1.6rem;
+        }
+
+    IMPORTANTE: diferencias entre auto-fit y auto-fill
+        	                        auto-fill	                                                            auto-fit
+        🔁 Rellena con	    El mayor número de tracks posibles, incluso si están vacíos	            Solo tracks con contenido visible
+        🪄 Espacios vacíos	  Reserva espacio para celdas vacías	                                 Colapsa celdas vacías
+        ✅ Uso ideal	       Cuando quieres estructura constante	                        Cuando quieres que las celdas se expandan para ocupar espacio libre
+
+123. IMPORTANTE: a los custom hook podemos pasarle parámetros
+    Ej.
+        export function useMovies ({ search }) {
+            const [responseMovies, setResponseMovies] = useState([])
+
+            const movies = responseMovies.Search
+
+            const mappedMovies = movies?.map(movie => ({
+                id: movie.imdbID,
+                title: movie.Title,
+                year: movie.Year,
+                image: movie.Poster
+            }))
+            
+            const getMovies = () => {
+                if (search) {
+                    setResponseMovies(withResults)
+                }
+                else {
+                    setResponseMovies(withoutResults)
+                }
+            }
+
+            return { movies: mappedMovies, getMovies }
+        }
+
+    Devuelve la función getMovies y el movies ya mapeados.
+
+    La llamada desde el App sería:
+    Ej.
+        function App () {
+            const { search, updateSearch, error } = useSearch()
+            const { movies, getMovies } = useMovies({ search })
+
+            ...
+            return (
+                ...
+                <main>
+                    <Movies movies={movies} />
+                </main>        
+            )
+        }       
+
+    Con esto tendríamos hecha la app sin hacer el fetch, tirando de nuestros json locales.
+
+124. Hacemos el fetch:
+    Ej.
+        const getMovies = () => {
+            if (search) {
+                const response = await fetch(`https://www.omdbapi.com/?apikey=${API_KEY}&s=${search}`)
+                const json = await response.json()
+
+                const movies = json.Search
+
+                // o con promesas
+
+                fetch(`https://www.omdbapi.com/?apikey=${API_KEY}&s=${search}`)
+                    .then( res => res.json )
+                    .then( json => {
+                        setResponseMovies(json)
+                    })
+            }
+            else {
+                setResponseMovies(withoutResults)
+            }
+        }
+
+125. CLAVE ==>> miramos en nuestras herramientas de desarrollo si hemos hecho bien la llamada del fetch, ¿como? yendo a Network / Fetch/XHR y ahí veremos las llamadas 
+    realizadas desde nuestra App. Le damos un click y veremos (pestaña Encabezados) por este orden si la URL que estamos llamando es la correcta (por ejemplo que se dirija a localhost y no a internet),
+    el método utilizado para llamar (GET, POST, ...), si la respuesta que devuelve es la esperada: es un json con la pinta adecuada o no (pestaña Respuesta)
+
+126. Extraemos la lógica del fetch a un servicio mejor que en un hook:
+    Ej. 
+        export const searchMovies = async ({ search }) => {
+            if (search === '') return null
+
+            try {
+                const response = await fetch(`https://www.omdbapi.com/?apikey=${API_KEY}&s=${search}`)
+                const json = await response.json()
+
+                const movies = json.Search
+
+                // hacemos el mapped movies en este servicio, no tiene porque estar en el custom hook
+                return movies?.map(movie => ({          
+                id: movie.imdbID,
+                title: movie.Title,
+                year: movie.Year,
+                image: movie.Poster
+                }))
+            } catch (e) {
+                throw new Error('Error searching movies')
+            }
+        }
+
+    Ej.
+        export function useMovies ({ search }) {
+            const [movies, setMovies] = useState([])
+
+            const getMovies = async () => {
+                const newMovies = await searchMovies({ search })
+                setMovies(newMovies)
+            }
+
+            return { movies, getMovies }
+        }
+
+    CLAVE ==>> para todo esto no hemos tocado nuestra App, solo el custom hook, que mientras cumpla el contrado de salida de { movies, getMovies } seguirá haciendo que nuestra App
+    funcione correctamente.
+
+127. Añadimos un control de carga y errores mediante estados en nuestro custom hook:
+    Ej.
+        export function useMovies ({ search }) {
+            const [movies, setMovies] = useState([])
+            const [loading, setLoading] = useState(false)
+            // el error no se usa pero puedes implementarlo
+            // si quieres:
+            const [error, setError] = useState(null)
+
+            const getMovies = async () => {
+                try {
+                    setLoading(true)
+                    setError(null)
+                    const newMovies = await searchMovies({ search })
+                    setMovies(newMovies)
+                } catch (e) {
+                    setError(e.message)
+                } finally {
+                    // tanto en el try como en el catch
+                    setLoading(false)
+                }
+            }
+
+            return { movies, getMovies, loading }
+        }
+
+    En nuestra función principal ya podemos mostrar Cargando... o las películas cuando se hallan cargado:
+    Ej.
+        function App () {
+            const { search, updateSearch, error } = useSearch()
+            const { movies, getMovies, loading } = useMovies({ search })
+
+            ...
+            return (
+                ...
+                <main>
+                    {loading ? <p>Cargando...</p> : <Movies movies={movies} />}
+                </main>        
+            )
+        }       
+
+128. CLAVE ==>> Uso de useRef para guardar el estado anterior. Podemos evitar que se vuelve a ejecutar la misma búsqueda que la última que hizo el usuario.
+    Ej. 
+        export function useMovies ({ search }) {
+            const [movies, setMovies] = useState([])
+            const [loading, setLoading] = useState(false)
+            const [error, setError] = useState(null)
+            const previousSearch = useRef(search)
+
+            const getMovies = async () => {
+                if (search == previousSearch.current) return
+                try {
+                    setLoading(true)
+                    setError(null)
+                    previousSearch.current = search
+                    const newMovies = await searchMovies({ search })
+                    setMovies(newMovies)
+                } catch (e) {
+                    setError(e.message)
+                } finally {
+                    // tanto en el try como en el catch
+                    setLoading(false)
+                }
+            }
+
+            return { movies, getMovies, loading }
+        }
+
+129. También se podría hacer con javascript definiendo el previousSearch con let fuera del cumtom hook, pero aunque funcionará no es buena práctica, ya que se compartiría
+    esa misma variable en todos los usos del custom hook que utilizasemos. Es decir, el uso del custom hook no debería depender del import del archivo que lo incluye, ya que la
+    importación es singletton y podríamos usar varias veces el useMovies en nuestro código.
+    Ej.
+        let previousSearch = ''
+
+        export function useMovies ({ search }) {
+            const [movies, setMovies] = useState([])
+            const [loading, setLoading] = useState(false)
+            const [error, setError] = useState(null)
+            
+            const getMovies = async () => {
+                if (search == previousSearch.current) return
+                try {
+                    setLoading(true)
+                    setError(null)
+                    previousSearch.current = search
+                    const newMovies = await searchMovies({ search })
+                    setMovies(newMovies)
+                } catch (e) {
+                    setError(e.message)
+                } finally {
+                    // tanto en el try como en el catch
+                    setLoading(false)
+                }
+            }
+
+            return { movies, getMovies, loading }
+        }
+
+130. Creamos un estado para ordenar las peliculas por título:
+    Ej.
+        function App () {
+            const { sort, setSort } = useState(false)
+            const { search, updateSearch, error } = useSearch()
+            const { movies, getMovies, loading } = useMovies({ search })
+
+            const handleSort = () => {
+                setSort(!sort)
+            }
+
+            ...
+            return (
+                <div className='page'>
+                    <header>
+                        <h1>Buscador de películas</h1>
+                        <form className='form' onSubmit={handleSubmit}>
+                            <input onChange={handleChange} value={search} name='query'
+                                placeholder='Avengers, Star Wars, The Matrix...'
+                            />
+                            <input type='check' onChange={handleSort} value={sort}
+                            <button type='submit'>Buscar</button>
+                        </form>
+                        {error && <p className='error'>{error}</p>}
+                    </header>
+
+                    <main>
+                        {loading ? <p>Cargando...</p> : <Movies movies={movies} />}
+                    </main>
+                </div>
+            )
+        }       
+
+    Pasamos al custom hook el sort como parámetro:
+    Ej.
+        export function useMovies ({ search, sort }) {
+            const [movies, setMovies] = useState([])
+            const [loading, setLoading] = useState(false)
+            const [, setError] = useState(null)
+            const previousSearch = useRef(search)
+
+            const getMovies = async () => {
+                if (search === previousSearch.current) return
+
+                try {
+                    setLoading(true)
+                    setError(null)
+                    previousSearch.current = search
+                    const newMovies = await searchMovies({ search })
+                    setMovies(newMovies)
+                } catch (e) {
+                    setError(e.message)
+                } finally {
+                    // tanto en el try como en el catch
+                    setLoading(false)
+                }
+            }
+            
+            const sortedMovies = sort                                           => si tenemos chequeado el sort lo ordenamos sino no
+                ? [...movies].sort((a, b) => a.title.localeCompare(b.title))    => el localCompare tiene en cuenta las tildes
+                : movies            
+
+            return { movies: sortedMovies, getMovies, loading }
+        }
+
+    Esto funciona, pero tiene un problema de rendimiento, porque no solo se aplica cuando el usuario da al buscar, también se renderiza de nuevo el componente el cambiar el texto del input
+    de la búsqueda, provocando de nuevo la reordenación de las películas siendo innecesario.
+
+    CLAVE ==>> en react el render es el cuerpo del componente, y en el caso de un custom hook es el cuerpo de la función. Todo lo que hay dentro se ejecutará de nuevo en caso de render.
+    En un custom hook si cambiarmos el valor de un parámetro que recibe se entenderá como un renderizado del mismo porque tiene que volver a evaluar el cuerpo de la función para ese 
+    nuevo valor.
+
+131. CLAVE ==>> método de ordenación usado para respetar tildes, mayúsculas y demás:
+    Ej.
+        [...movies].sort((a, b) => a.title.localeCompare(b.title))   => compara y ordena por title
+
+132. CLAVE ==>> useMemo : hook que permite memorizar un valor que se recalculará en función de unas dependencias, solo cuando cambien esas dependencias se volverá a ejecutar.
+    Con este hook podemos evitar volver a ordenar esta lista si no ha cambiado:
+    Ej.
+        import { useRef, useState, useMemo } from 'react'
+        import { searchMovies } from '../services/movies.js'
+
+        export function useMovies ({ search, sort }) {
+            const [movies, setMovies] = useState([])
+            const [loading, setLoading] = useState(false)
+            const [, setError] = useState(null)
+            const previousSearch = useRef(search)
+
+            const getMovies = async () => {
+                if (search === previousSearch.current) return
+
+                try {
+                    setLoading(true)
+                    setError(null)
+                    previousSearch.current = search
+                    const newMovies = await searchMovies({ search })
+                    setMovies(newMovies)
+                } catch (e) {
+                    setError(e.message)
+                } finally {
+                    // tanto en el try como en el catch
+                    setLoading(false)
+                }
+            }
+            
+            const sortedMovies = useMemo( () => {
+                sort                                           => si tenemos chequeado el sort lo ordenamos sino no
+                    ? [...movies].sort((a, b) => a.title.localeCompare(b.title))    => el localCompare tiene en cuenta las tildes
+                    : movies            
+            }, [ sort, movies ])      => indicamos que se recalcule o ejecute cuando cambie el check de ordenado o la lista de movies
+
+            // como el search no es una dependencia de nuestro useMemo no se ejecuta aunque cambie el search.
+
+            return { movies: sortedMovies, getMovies, loading }
+        }
+
+133. CLAVE ==>> no usar useMemo en todos los cálculos, a veces vale más la pensa realizar un pequeño cálculo de microsegundos que poner un useMemo para que no se haga.
+    En nuestro ejemplo si supieramos que solo hay 10 películas no valdría la pena hacerlo.
+
+134. CLAVE ==>> Podemos usar el useMemo también para memorizar funciones, y así evitar que se ejecuten cada vez que se renderiza el componente, pasando a ejecutarse solo 
+    cuando hemos cambiado las dependencias de nuestro useMemo.
+    Ej.
+        const getMovies = useMemo( () => { 
+            return async () => {
+                if (search === previousSearch.current) return
+
+                try {
+                    setLoading(true)
+                    setError(null)
+                    previousSearch.current = search
+                    const newMovies = await searchMovies({ search })
+                    setMovies(newMovies)
+                } catch (e) {
+                    setError(e.message)
+                } finally {
+                    // tanto en el try como en el catch
+                    setLoading(false)
+                }
+            }
+        }, [search])
+
+135. IMPORTANTE: Esto no es del todo eficiente, puesto que cada vez que cambiemos el input de la búsqueda nos volverá a generar la función, cuando en realidad lo que queremos es que la
+    función se cree una sola vez y luego pasemos a llamarla cuando toque.
+    Ej.
+        const getMovies = useMemo( () => { 
+            return async ({ search }) => {                      => como el search ya lo recibe como parámetro ya no hace falta tenerlo como dependencia
+                if (search === previousSearch.current) return
+
+                try {
+                    setLoading(true)
+                    setError(null)
+                    previousSearch.current = search
+                    const newMovies = await searchMovies({ search })
+                    setMovies(newMovies)
+                } catch (e) {
+                    setError(e.message)
+                } finally {
+                    // tanto en el try como en el catch
+                    setLoading(false)
+                }
+            }
+        }, [])                                              =>  podemos indicarle que solo se genere la función al crear el componente, la primera vez.        
+
+    CLAVE ==>> Se ejecutará la función solo cuando se llame, y se generará solo la primera vez que se cree nuestro componente o custom hook.
+
+136. CLAVE ==>> para identificar problemas de rendimiento lo mejor es usar el Profiler de nuestras devtools de react en el explorador crhome
+
+137. CLAVE ==>> Como el useMemo queda un poco raro usado para funciones, es una función que se crea para devolver otra función ... existe el hook useCallback que es lo 
+    mismo que el useMemo pero pensado para funciones. Por debajo el useCallback utiliza el useMemo de la misma forma que vimos. De hecho es lo mismo pero te ahorras el return, ya que le pasas directamente la función:
+    Ej.
+        const getMovies = useCallback(
+            async ({ search }) => {           => como el search ya lo recibe como parámetro ya no hace falta tenerlo como dependencia
+                if (search === previousSearch.current) return
+
+                try {
+                    setLoading(true)
+                    setError(null)
+                    previousSearch.current = search
+                    const newMovies = await searchMovies({ search })
+                    setMovies(newMovies)
+                } catch (e) {
+                    setError(e.message)
+                } finally {
+                    // tanto en el try como en el catch
+                    setLoading(false)
+                }
+        }, []) 
+
+    La sintaxis se simplifica al pasarle directamente la función como primer parámetro y las dependencias como segundo.
+
+138. ¿como implementar que se haga la búsqueda de forma automática al escribir? 
+    Ej.
+        const handleChange = (event) => {
+            const newSearch = event.target.value
+            updateSearch(newSearch)
+            getMovies({search: newSearch})
+        }  
+
+    Simplemente con esto cada vez que escribimos modificando el input lanza una búsqueda y carga las películas.
+
+139. CLAVE ==>> Pero nos piden que no haga búsquedas de forma continuada, es decir, actualmente si escribimos matrix en el input realizamos 6 búsquedas diferentes:
+    una para la m, otra para la ma, otra para la mat, otra para la matr, otra para la matri, y finalmente una para matrix.
+    Esto es ineficiente y también genera un problema de RaceCondition, es decir se lanzan varias búsquedas asíncronas pero no sabemos cuál es el orden de finalización de todas ellas, 
+    pudiendo ser la última en acabar una de las búsquedas anteriores y mostrando en pantalla un resultado que no es el correspondiente a matrix.
+
+140. CLAVE ==>> Debounce: es una técnica que nos sirve para resolver el problema anterior, no se va a lanzar la búsqueda de forma inmediata en cada letra tecleada por el usuario
+    en el input, sino que se va a esperar un tiempo antes de hacer algo. Podríamos bajarnos librerías que ya lo implementan, incluso un custom hook que lo hace ya hecho.
+    Pero vamos a desarrollarlo para aprender como lo haríamos. Recomiendo usar el debounce de la librería Just. Es muy fácil de entender: 
+    Se inicia un timeout por ejemplo de 500ms, si se vuelve a llamar se reinicia el timeout a 500ms de nuevo, si no llama nadie cuando el timeout termina ejecuta la función.
+    Este sería el funcionamiento del debounce, se puede cancelar.
+    Ej.
+        npm install just-debounce-it -E
+    Si miramos hay varias formas de usar este debounce, se importa y luego se puede llamar sin ejecutarse hasta que venza el timeout establecido, también se puede lanzar ejecutándose la
+    primera vez para darle info al usuario y luego ya cuando venza el siguiente timeout. También tenemos las opciones:
+        cancel() -> que nos cancela el debounce y ya no se ejecutará la función.
+        flush() -> que fuerza a que venza el timeout ejecutando la función de inmediato.
+
+141. Lo implementamos en nuestra App:
+
+    Lo importamos:
+    Ej.
+        import { useRef, useState, useMemo, useCallback } from 'react'
+        import { searchMovies } from '../services/movies.js'
+        import debounce from 'just-debounce-it'
+
+    Lo que queremos es aplicar el debounce al getMovies que hay dentro del handleChange, no del que hay dentro del handleSubmit que siempre lo tiene que hacer, ni tampoco al propio handleChange, ya que eso evitaría que se viera por pantalla:
+
+    Creamos el debounce:
+    Ej.
+        const debounceGetMovies = debounce( search => {
+            getMovies(search)
+        }, 500)             => 500ms
+
+    Lo llamamos en lugar de llamar a getMovies en el handleChange:
+    Ej.
+        const handleChange = (event) => {
+            const newSearch = event.target.value
+            updateSearch(newSearch)
+            debounceGetMovies(newSearch)
+        }  
+    IMPORTANTE: esto no funciona porque tenemos que la función del debounce se genera cada vez que se renderiza el componente, o sea cada vez que lo llamamos porque pasa al cambiar cualquier 
+    letra del input. Para evitar esto usamos el useCallback:
+    Ej.
+        const debounceGetMovies = useCallback( debounce( search => {
+                getMovies(search)
+            }, 500)
+        }, [])                  => podríamos poner getMovies como dependencia, pero ya hemos visto que nuestra getMovies es única y no cambia
+
+    Ahora ya funciona todo.
+
 ---------------------------------------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------  
