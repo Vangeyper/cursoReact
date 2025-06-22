@@ -239,11 +239,11 @@ Curso https://www.youtube.com/watch?v=7iobxzd_2wY
     OJO: no es lo mismo pasar la función que pasar la ejecución de la función. Para pasar la ejecución es miFuncion = {funcionName()} mientras que para pasar la función es miFuncion = {funcionName}
     donde funcionName es el nombre de la función.
 
-35. CLAVE ==>>  ¿ cuál es la diferencia entre un ELEMENTO y un COMPONENTE ?: un componente es como una factoría de elementos, es una función que al ejecutarla te devuelve un elemento.
+35. **> CLAVE <** ==>>  ¿ cuál es la diferencia entre un ELEMENTO y un COMPONENTE ?: un componente es como una factoría de elementos, es una función que al ejecutarla te devuelve un elemento.
 
 36. IMPORTANTE: las props deberían ser inmutables => no debemos modificar el valor de las props dentro del componente. Lo correcto es hacer una copia en una constante o variable y luego modificarla.
 
-37. CLAVE ==>> CHILDREN: es una prop especial que hace referencia a todos los hijos de un elemento, pueden ser uno o varios.
+37. **> CLAVE <** ==>> CHILDREN: es una prop especial que hace referencia a todos los hijos de un elemento, pueden ser uno o varios.
     Ej.
         <TwitterFollowCard
             key={userName}
@@ -256,17 +256,17 @@ Curso https://www.youtube.com/watch?v=7iobxzd_2wY
     En el componente podemos acceder a la prop como children:
     Ej.
         export function TwitterFollowCard ({ children, userName, initialIsFollowing }) {
-        const [isFollowing, setIsFollowing] = useState(initialIsFollowing)
+            const [isFollowing, setIsFollowing] = useState(initialIsFollowing)
 
-        console.log('[TwitterFollowCard] render with userName: ', userName)
+            console.log('[TwitterFollowCard] render with userName: ', userName)
 
-        const text = isFollowing ? 'Siguiendo' : 'Seguir'
-        const buttonClassName = isFollowing
-            ? 'tw-followCard-button is-following'
-            : 'tw-followCard-button'
+            const text = isFollowing ? 'Siguiendo' : 'Seguir'
+            const buttonClassName = isFollowing
+                ? 'tw-followCard-button is-following'
+                : 'tw-followCard-button'
 
-        const handleClick = () => {
-            setIsFollowing(!isFollowing)
+            const handleClick = () => {
+                setIsFollowing(!isFollowing)
         }
 
         return (
@@ -340,11 +340,11 @@ Curso https://www.youtube.com/watch?v=7iobxzd_2wY
         1. Cuando ha cambiado el estado interno de algún componente. 
         2. Cuando un componente padre se vuelve a renderizar y propaga los cambios hacia abajo. Cuando se renderiza un componente se renderizan todos los componentes que hay debajo o implicados en su renderizado.
             Esto pasa por tener estructura de árbol, solo se renderizan los hijos del componente que ha modificado su estado y él mismo, no los padres.        
-    CLAVE ==>>  se renderizan de nuevo TODOS los componentes hijo del padre que ha cambiado el estado, aunque no sufran cambios concretos dichos componentes hijo. PERO, cuando React va a renderizar el componente, padre con sus hijos solo
+    **> CLAVE <** ==>>  se renderizan de nuevo TODOS los componentes hijo del padre que ha cambiado el estado, aunque no sufran cambios concretos dichos componentes hijo. PERO, cuando React va a renderizar el componente, padre con sus hijos solo
     renderiza o pinta los cambios, por lo que los componentes hijos que no han modificado su html no se pintan de nuevo, aunque se han ejecutado dichos componentes para generar el html de renderizado de nuevo.
     No sobreescribe el DOM, lo deja intacto. Este proceso se hace comparando el DOM con el Virtual DOM y se llama RECONCILIATION.
 
-45. CLAVE ==>> OPTIMIZACIONES: una optimización consiste en evitar que si ciertos componentes hijos no han cambiado nada no se rendericen ni ejecuten sus códigos aunque se modifique el componente padre.
+45. **> CLAVE <** ==>> OPTIMIZACIONES: una optimización consiste en evitar que si ciertos componentes hijos no han cambiado nada no se rendericen ni ejecuten sus códigos aunque se modifique el componente padre.
 
 46. De hijos a padres no podemos pasar props, pero podemos pasar callbacks.
 
@@ -359,7 +359,7 @@ Curso https://www.youtube.com/watch?v=7iobxzd_2wY
         export function TwitterFollowCard ({ children, userName, initialIsFollowing }) {
             const [isFollowing, setIsFollowing] = useState(initialIsFollowing)
 
-50. CLAVE ==>> Las props que se usan para inicializar un estado en un componente solo se aplican una vez, luego ya no se vuelven a usar aunque cambiemos su valor. Solo sirven para inicializar el estado la primera vez que renderizamos el componente.
+50. **> CLAVE <** ==>> Las props que se usan para inicializar un estado en un componente solo se aplican una vez, luego ya no se vuelven a usar aunque cambiemos su valor. Solo sirven para inicializar el estado la primera vez que renderizamos el componente.
     Por lo que no sirve tener un estado en el componente padre y pasárselo a los hijos como prop de initialIsFollowing pretendiendo que se actualicen los estados de los hijos. 
 
 51. Utilizamos el componente para renderizar una lista de usuarios: como es javascript podemos usar un map de los usuarios y con eso ya lo tendríamos. Envolvemos entre llaves lo que queremos renderizar del componente padre:
@@ -485,7 +485,7 @@ https://www.youtube.com/watch?v=qkzcjwnueLA
         })
     No podemos condicionar como hemos dicho en el punto 58 el hook, pero podemos condicionar el valor que inicializamos.
 
-    CLAVE ==>> la lectura del localStorage es lenta y debemos evitar hacerla si no es necesario. Si la ponemos dentro del useState del board solo se hará en los casos en que se 
+    **> CLAVE <** ==>> la lectura del localStorage es lenta y debemos evitar hacerla si no es necesario. Si la ponemos dentro del useState del board solo se hará en los casos en que se 
     inicialice el tablero, pero si la ponemos justo antes lo hará cada vez que se renderice el componente.
 
     Lo mismo hacemos con los turnos:
@@ -524,11 +524,11 @@ https://www.youtube.com/watch?v=qkzcjwnueLA
 
     Cuando informamos valores en la lista es como suscribirse a un evento. Se ejecutará siempre que pase.
 
-    CLAVE ==>> usamos el useEffect para cargar listeners o apis de terceros que no tiene sentido que se ejecuten cada vez que se renderice el componente, así lo ejecutaremos cuando queramos.
+    **> CLAVE <** ==>> usamos el useEffect para cargar listeners o apis de terceros que no tiene sentido que se ejecuten cada vez que se renderice el componente, así lo ejecutaremos cuando queramos.
 
     No permiten parámetros las funciones useEffect.
 
-63. CLAVE ==>> Requisitos para instalar en los proyectos:
+63. **> CLAVE <** ==>> Requisitos para instalar en los proyectos:
     1. npm install standard -D      => son reglas de linter 
     2. En el package.json aparcerá el standard recien instalado, y añadiremos lo siguiente:
         Ej. 
@@ -563,18 +563,18 @@ https://www.youtube.com/watch?v=qkzcjwnueLA
             //    el efecto de nuevo
             return () => { // cleanup method
                 console.log('cleanup')
-                window.removeEventListener('pointermove', handleMove)           => CLAVE ==>> CLEAN useEffect: las suscripciones las tenemos que limpiar, 
+                window.removeEventListener('pointermove', handleMove)           => **> CLAVE <** ==>> CLEAN useEffect: las suscripciones las tenemos que limpiar, 
             }                                                                                 porque persisten en el tiempo, react no las cancela
         }, [enabled])
 
-    CLAVE ==>> no podemos meter el useEffect en el condicional  if(enabled)   ni en ningún otro por lo que habíamos dicho de la posición de los hook en react.
+    **> CLAVE <** ==>> no podemos meter el useEffect en el condicional  if(enabled)   ni en ningún otro por lo que habíamos dicho de la posición de los hook en react.
 
     Es buena práctica inicializar con valores siempre que podamos, sino con null.
     Ej.
         const [position, setPosition] = useState({ x: 0, y: 0 })
 
     
-65. CLAVE ==>> CLEAN useEffect: las suscripciones las tenemos que limpiar, porque persisten en el tiempo, react no las cancela. ¿Cuando hacer esas limpiezas? pues en el return() 
+65. **> CLAVE <** ==>> CLEAN useEffect: las suscripciones las tenemos que limpiar, porque persisten en el tiempo, react no las cancela. ¿Cuando hacer esas limpiezas? pues en el return() 
     que podemos indicar para las funciones useEffect. Podemos declarar una función que haga estas limpiezas.
     Ej.
         return () => { // cleanup method
@@ -586,10 +586,10 @@ https://www.youtube.com/watch?v=qkzcjwnueLA
         1. Siempre que se desmonte el componente
         2. Cada vez que cambien las dependencias de la función useEffect -> se ejecuta antes del propio useEffect, realiza una limpieza previa antes del nuevo efecto.
 
-66. CLAVE ==>> Si no limpiamos las suscripciones en las funciones useEffect no solo tendremos un problema de funcionamiento, sino que se irán creando nuevas suscripciones ocupando 
+66. **> CLAVE <** ==>> Si no limpiamos las suscripciones en las funciones useEffect no solo tendremos un problema de funcionamiento, sino que se irán creando nuevas suscripciones ocupando 
     recursos y penalizando el rendimiento del app.
 
-67. CLAVE ==>> Si queremos saber cuantas suscripciones se han realizado a un determinado evento en el chrome podemos ir a Consola y poner: getEventListeners(window)
+67. **> CLAVE <** ==>> Si queremos saber cuantas suscripciones se han realizado a un determinado evento en el chrome podemos ir a Consola y poner: getEventListeners(window)
     Nos indicará un array con las suscripciones a cada evento en caso de existir más de una. Con esto podremos ver si estamos limpiando bien los eventos. También sirve para
     determinar problemas de rendimiento en páginas web.
 
@@ -598,7 +598,7 @@ https://www.youtube.com/watch?v=qkzcjwnueLA
     2 veces los componentes. Es una ayuda para detectar malos funcionamientos en desarrollo. El React.StrictMode en producción lo ignora y es como si no existiera. En desarrollo 
     si quisieramos podemos quitarlo y dejará de hacer el doble ejecutor.
 
-69. CLAVE ==>> React Developer Tools: son unas herramientas de desarrollo para cualquier explorador de windows de los más conocidos.
+69. **> CLAVE <** ==>> React Developer Tools: son unas herramientas de desarrollo para cualquier explorador de windows de los más conocidos.
     Una vez instalada nos indicará en un inconito superior derecho si estamos en desarrollo o producción, el primer caso aparece en rojo con un escarabajo de debug.
     Si miramos al final hay 2 nuevas opciones: 
         1. Profiler:
@@ -667,7 +667,7 @@ Vamos a hacer la prueba sin tener plantilla inicial de React, es decir creando u
             plugins: [react()]
         })
 
-77. CLAVE ==>> Creamos el punto de entrada de la aplicación de react (es crear el elemento raiz de la misma y poner el primer componente):
+77. **> CLAVE <** ==>> Creamos el punto de entrada de la aplicación de react (es crear el elemento raiz de la misma y poner el primer componente):
     Esto lo hacemos en nuestro main.js puesto que es el primer archivo que se carga a través de nuestro index.html
     Ej.
         import { createRoot } from 'react-dom/client'
@@ -675,7 +675,7 @@ Vamos a hacer la prueba sin tener plantilla inicial de React, es decir creando u
         const root = createRoot(document.getElementById('app'))
         root.render(<h1>Hello, world!</h1>)    
 
-    CLAVE ==>> Problema: este código no se ejecuta porque requiere la extensión .jsx para hacerlo transpilando el código con SWC o similar. Renombramos a main.jsx.
+    **> CLAVE <** ==>> Problema: este código no se ejecuta porque requiere la extensión .jsx para hacerlo transpilando el código con SWC o similar. Renombramos a main.jsx.
     También modificamos la referencia en index.html al nuevo archivo main.jsx
 
 78. Instalamos el eslint:
@@ -715,14 +715,14 @@ Vamos a hacer la prueba sin tener plantilla inicial de React, es decir creando u
         const root = createRoot(document.getElementById('app'))
         root.render(<App />)
 
-81. CLAVE ==>> conforme vamos programando debemos ir mostrando cosas en la pantalla que demuestren nuestro progreso.
+81. **> CLAVE <** ==>> conforme vamos programando debemos ir mostrando cosas en la pantalla que demuestren nuestro progreso.
 
 82. Definir la prueba en subtareas a realizar:
     - Recupera un hecho aleatorio de gatos de la primera API
     - Recuperar la primera palabra del hecho
     - Muestra una imagen de un gato con la primera palabra del hecho recuperado usando la segunda API.
 
-    CLAVE ==>> concretar lo que devuelve la API y asegurar el endpoint que vamos a utilizar. Incluso lo pondríamos en una constante dentro de un template ya con las partes a cambiar:
+    **> CLAVE <** ==>> concretar lo que devuelve la API y asegurar el endpoint que vamos a utilizar. Incluso lo pondríamos en una constante dentro de un template ya con las partes a cambiar:
         Ej.
             const CAT_ENDPOINT_RANDOM_FACT = 'https://catfact.ninja/fact'
 
@@ -733,11 +733,11 @@ Vamos a hacer la prueba sin tener plantilla inicial de React, es decir creando u
         export function App () {
             const {fact, setFact} = useState('lorem ipsum what the fact')
 
-            CLAVE ==>> no podemos poner aquí un fetch de datos porque esto se ejecuta cada vez que renderizamos nuestro componente
+            **> CLAVE <** ==>> no podemos poner aquí un fetch de datos porque esto se ejecuta cada vez que renderizamos nuestro componente
 
-            CLAVE ==>> Usamos un useEffect para que la primera vez que se va a montar nuestro componente haga el fecth
+            **> CLAVE <** ==>> Usamos un useEffect para que la primera vez que se va a montar nuestro componente haga el fecth
 
-            CLAVE ==>> No olvidarse de poner la dependencia: []  o entraremos en bucle infinito y tendremos problemas 
+            **> CLAVE <** ==>> No olvidarse de poner la dependencia: []  o entraremos en bucle infinito y tendremos problemas 
 
             useEffect (() => {
                 fetch('https://catfact.ninja/fact')
@@ -766,7 +766,7 @@ Vamos a hacer la prueba sin tener plantilla inicial de React, es decir creando u
             getRandomFact()            
         }, [])
 
-    CLAVE ==>> No podemos poner el async await directamente en el useEffect.
+    **> CLAVE <** ==>> No podemos poner el async await directamente en el useEffect.
 
 85. Justo despues de obtener el fact buscamos la primera palabra del mismo:
     Ej.
@@ -783,11 +783,11 @@ Vamos a hacer la prueba sin tener plantilla inicial de React, es decir creando u
         Ej.
             const firstWord = fact.split(' ', 3).join(' ')
 
-86. CLAVE ==>> para buscar cosas del lenguaje como la función para separar string por un token: 
+86. **> CLAVE <** ==>> para buscar cosas del lenguaje como la función para separar string por un token: 
     Ej. 
         en el buscador de google ponemos: mdn separar string por separador
 
-87. CLAVE ==>> NO busquéis la solución a lo que os piden en google, buscar documentación de lo que necesitáis para resolverlo, pero no de ejemplos ya hechos.    
+87. **> CLAVE <** ==>> NO busquéis la solución a lo que os piden en google, buscar documentación de lo que necesitáis para resolverlo, pero no de ejemplos ya hechos.    
 
 88. usamos la segunda API con nuestra primera palabra. Para guardarla necesitamos otro estado:
     Ej.
@@ -858,7 +858,7 @@ Vamos a hacer la prueba sin tener plantilla inicial de React, es decir creando u
                 height: auto;
             }
 
-92. CLAVE ==>> los efectos en react debería tener una sola responsabilidad, si les damos varias no es una buena práctica.
+92. **> CLAVE <** ==>> los efectos en react debería tener una sola responsabilidad, si les damos varias no es una buena práctica.
     Esto distribuye las responsabilidades y evita la anidación.
     Ej.
         useEffect (() => {
@@ -881,7 +881,7 @@ Vamos a hacer la prueba sin tener plantilla inicial de React, es decir creando u
             })
         }, [fact])
 
-93. CLAVE ==>> los errores se pueden gestionar en el useEffect, pero hay que tener en cuenta que entraremos en el catch si hay errores con la petición, no con la
+93. **> CLAVE <** ==>> los errores se pueden gestionar en el useEffect, pero hay que tener en cuenta que entraremos en el catch si hay errores con la petición, no con la
     respuesta. Esta la tenemos que controlar nosotros.
     Ej.
             useEffect (() => {
@@ -905,12 +905,12 @@ Vamos a hacer la prueba sin tener plantilla inicial de React, es decir creando u
             return fact
         }
 
-        CLAVE ==>> si separamos la lógica en funciones para poder reutilizarlas no es buena práctica pasar estados o funciones de modificación de estados de nuestro 
+        **> CLAVE <** ==>> si separamos la lógica en funciones para poder reutilizarlas no es buena práctica pasar estados o funciones de modificación de estados de nuestro 
         componente a la función. Tiene que ser completamente reutilizable, lo que es react que se quede en el componente. Así si que podemos crearla en un archivo .js
         y luego importarla.
 
         useEffect (() => {
-            getRandomFact().then(setFact)               CLAVE ==>> sería lo mismo que escribir: getRandomFact().then(newfact => setFact(newfact))     
+            getRandomFact().then(setFact)               **> CLAVE <** ==>> sería lo mismo que escribir: getRandomFact().then(newfact => setFact(newfact))     
         }, [])
 
         const handleClick = async () => {
@@ -931,7 +931,7 @@ https://www.youtube.com/watch?v=x-LcbVw99o8
 ---------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------
 
-95. CLAVE ==>> Un Custom Hook es simplemente extraer lógica de nuestros componentes para poder reutilizarla en otros componentes
+95. **> CLAVE <** ==>> Un Custom Hook es simplemente extraer lógica de nuestros componentes para poder reutilizarla en otros componentes
 
 96. Creación de un Custom Hook -> debemos crear una función que empiece con la palabra useXXXXXXXX seguida del resto del nombre 
     Ej.
@@ -974,9 +974,9 @@ https://www.youtube.com/watch?v=x-LcbVw99o8
     Ej.
         const { imageUrl } = useCatImage({ fact })
 
-    CLAVE ==>> Esta llamada no la podemos poner dentro de un if, ni un while ni en ninguno de los casos en que no se permite un hook, igual que cualquier hook de react.
+    **> CLAVE <** ==>> Esta llamada no la podemos poner dentro de un if, ni un while ni en ninguno de los casos en que no se permite un hook, igual que cualquier hook de react.
 
-100. CLAVE ==>> La diferencia entre un Custom Hook y una función normal radica en que en un Custom Hook se pueden usar hooks de react y en una función normal NO.
+100. **> CLAVE <** ==>> La diferencia entre un Custom Hook y una función normal radica en que en un Custom Hook se pueden usar hooks de react y en una función normal NO.
 
 101. Pasando los parámetros entre llaves los estamos pasando como un objeto, con esto favorecemos la extensibilidad de nuestra función. Si en el futuro añadimos nuevos parámetros a la
     función simplemente los añadimos al objeto separándolos por comas, y el orden es indiferente en el paso del parámetro. Además el nombre de cada elemento del objeto tiene que ser el que
@@ -1000,7 +1000,7 @@ https://www.youtube.com/watch?v=x-LcbVw99o8
             // para recuperar la cita al cargar la página
             useEffect(refreshFact, [])                      // ejecuta la función refreshFact cada vez que se monta el componente
 
-            return { fact, refreshFact }    CLAVE ==>> como en el botón del App.jsx tenemos que hacer lo mismo que hace refreshFact la devolvemos también.
+            return { fact, refreshFact }    **> CLAVE <** ==>> como en el botón del App.jsx tenemos que hacer lo mismo que hace refreshFact la devolvemos también.
         }
 
     Donde la función getRandomFact estaría definida en el fichero fact.js como:
@@ -1041,9 +1041,9 @@ https://www.youtube.com/watch?v=x-LcbVw99o8
         )
         }  
 
-104. CLAVE ==>> siempre que veamos un useEffect y otros casos hay que preguntarse si no valdría la pena tenerlo en un custom hook. Porque sería lógica reutilizable que tendríamos fuera de nuestro componente.
+104. **> CLAVE <** ==>> siempre que veamos un useEffect y otros casos hay que preguntarse si no valdría la pena tenerlo en un custom hook. Porque sería lógica reutilizable que tendríamos fuera de nuestro componente.
 
-105. CLAVE ==>> si nos dicen que más haríamos si tenemos tiempo: 
+105. **> CLAVE <** ==>> si nos dicen que más haríamos si tenemos tiempo: 
         1. Control de errores en nuestros componentes.
         2. Testing del app.
 
@@ -1264,7 +1264,7 @@ RESULTADO:
             )
         }
 
-115. CLAVE ==>> Nuevo Hook useRef: te permite crear una referencia a un elemento del DOM, esta sería una explicación mala. En realidad es un hook que te permite crear una
+115. **> CLAVE <** ==>> Nuevo Hook useRef: te permite crear una referencia a un elemento del DOM, esta sería una explicación mala. En realidad es un hook que te permite crear una
     referencia mutable que persiste durante todo el ciclo de vida de tu componente. Puedes guardar un contador y cada vez que cambie no vuelve a renderizar el componente como
     con el useState. El useState cada vez que cambia renderiza el componente, pero en cambio el useRef no renderiza el componente al cambiar el valor.
     Por esto es útil para guardar una referencia a un elemento del DOM y siempre lo tendremos accesible.
@@ -1338,7 +1338,7 @@ RESULTADO:
             </div>
         )
 
-117. CLAVE ==>> Aunque no está mal hecho, es mejor práctica usar javascript de toda la vida para hacer lo mismo con FormData sobre el evento:
+117. **> CLAVE <** ==>> Aunque no está mal hecho, es mejor práctica usar javascript de toda la vida para hacer lo mismo con FormData sobre el evento:
     Ej.
         const handleSubmit = (event) => {
             event.preventDefault
@@ -1527,7 +1527,7 @@ RESULTADO:
             const [sort, setSort] = useState(false)
             const { search, updateSearch, error } = useSearch()
 
-120. CLAVE ==>> otro uso del useRef consiste en evitar validaciones iniciales que se basan en los estados iniciales y no en las entradas del usuario.
+120. **> CLAVE <** ==>> otro uso del useRef consiste en evitar validaciones iniciales que se basan en los estados iniciales y no en las entradas del usuario.
     Ej.
         useEffect(() => {
             if (search === '') {
@@ -1543,7 +1543,7 @@ RESULTADO:
 121. Sabemos que debemos usar un custom hook y no un helper típico de javascript cuando por un lado hay un useEffect en nuestro código a extraer. En general si hay algún hook
     en nuestro código lo mejor es usar un custom hook, sino usamos un helper de JS.
 
-122. CLAVE ==>> GRID RESPONSIVE
+122. **> CLAVE <** ==>> GRID RESPONSIVE
     Ej.
         function ListOfMovies ({ movies }) {
             return (
@@ -1678,7 +1678,7 @@ RESULTADO:
             }
         }
 
-125. CLAVE ==>> miramos en nuestras herramientas de desarrollo si hemos hecho bien la llamada del fetch, ¿como? yendo a Network / Fetch/XHR y ahí veremos las llamadas 
+125. **> CLAVE <** ==>> miramos en nuestras herramientas de desarrollo si hemos hecho bien la llamada del fetch, ¿como? yendo a Network / Fetch/XHR y ahí veremos las llamadas 
     realizadas desde nuestra App. Le damos un click y veremos (pestaña Encabezados) por este orden si la URL que estamos llamando es la correcta (por ejemplo que se dirija a localhost y no a internet),
     el método utilizado para llamar (GET, POST, ...), si la respuesta que devuelve es la esperada: es un json con la pinta adecuada o no (pestaña Respuesta)
 
@@ -1717,7 +1717,7 @@ RESULTADO:
             return { movies, getMovies }
         }
 
-    CLAVE ==>> para todo esto no hemos tocado nuestra App, solo el custom hook, que mientras cumpla el contrado de salida de { movies, getMovies } seguirá haciendo que nuestra App
+    **> CLAVE <** ==>> para todo esto no hemos tocado nuestra App, solo el custom hook, que mientras cumpla el contrado de salida de { movies, getMovies } seguirá haciendo que nuestra App
     funcione correctamente.
 
 127. Añadimos un control de carga y errores mediante estados en nuestro custom hook:
@@ -1761,7 +1761,7 @@ RESULTADO:
             )
         }       
 
-128. CLAVE ==>> Uso de useRef para guardar el estado anterior. Podemos evitar que se vuelve a ejecutar la misma búsqueda que la última que hizo el usuario.
+128. **> CLAVE <** ==>> Uso de useRef para guardar el estado anterior. Podemos evitar que se vuelve a ejecutar la misma búsqueda que la última que hizo el usuario.
     Ej. 
         export function useMovies ({ search }) {
             const [movies, setMovies] = useState([])
@@ -1886,15 +1886,15 @@ RESULTADO:
     Esto funciona, pero tiene un problema de rendimiento, porque no solo se aplica cuando el usuario da al buscar, también se renderiza de nuevo el componente el cambiar el texto del input
     de la búsqueda, provocando de nuevo la reordenación de las películas siendo innecesario.
 
-    CLAVE ==>> en react el render es el cuerpo del componente, y en el caso de un custom hook es el cuerpo de la función. Todo lo que hay dentro se ejecutará de nuevo en caso de render.
+    **> CLAVE <** ==>> en react el render es el cuerpo del componente, y en el caso de un custom hook es el cuerpo de la función. Todo lo que hay dentro se ejecutará de nuevo en caso de render.
     En un custom hook si cambiarmos el valor de un parámetro que recibe se entenderá como un renderizado del mismo porque tiene que volver a evaluar el cuerpo de la función para ese 
     nuevo valor.
 
-131. CLAVE ==>> método de ordenación usado para respetar tildes, mayúsculas y demás:
+131. **> CLAVE <** ==>> método de ordenación usado para respetar tildes, mayúsculas y demás:
     Ej.
         [...movies].sort((a, b) => a.title.localeCompare(b.title))   => compara y ordena por title
 
-132. CLAVE ==>> useMemo : hook que permite memorizar un valor que se recalculará en función de unas dependencias, solo cuando cambien esas dependencias se volverá a ejecutar.
+132. **> CLAVE <** ==>> useMemo : hook que permite memorizar un valor que se recalculará en función de unas dependencias, solo cuando cambien esas dependencias se volverá a ejecutar.
     Con este hook podemos evitar volver a ordenar esta lista si no ha cambiado:
     Ej.
         import { useRef, useState, useMemo } from 'react'
@@ -1934,10 +1934,10 @@ RESULTADO:
             return { movies: sortedMovies, getMovies, loading }
         }
 
-133. CLAVE ==>> no usar useMemo en todos los cálculos, a veces vale más la pensa realizar un pequeño cálculo de microsegundos que poner un useMemo para que no se haga.
+133. **> CLAVE <** ==>> no usar useMemo en todos los cálculos, a veces vale más la pensa realizar un pequeño cálculo de microsegundos que poner un useMemo para que no se haga.
     En nuestro ejemplo si supieramos que solo hay 10 películas no valdría la pena hacerlo.
 
-134. CLAVE ==>> Podemos usar el useMemo también para memorizar funciones, y así evitar que se ejecuten cada vez que se renderiza el componente, pasando a ejecutarse solo 
+134. **> CLAVE <** ==>> Podemos usar el useMemo también para memorizar funciones, y así evitar que se ejecuten cada vez que se renderiza el componente, pasando a ejecutarse solo 
     cuando hemos cambiado las dependencias de nuestro useMemo.
     Ej.
         const getMovies = useMemo( () => { 
@@ -1981,11 +1981,11 @@ RESULTADO:
             }
         }, [])                                              =>  podemos indicarle que solo se genere la función al crear el componente, la primera vez.        
 
-    CLAVE ==>> Se ejecutará la función solo cuando se llame, y se generará solo la primera vez que se cree nuestro componente o custom hook.
+    **> CLAVE <** ==>> Se ejecutará la función solo cuando se llame, y se generará solo la primera vez que se cree nuestro componente o custom hook.
 
-136. CLAVE ==>> para identificar problemas de rendimiento lo mejor es usar el Profiler de nuestras devtools de react en el explorador crhome
+136. **> CLAVE <** ==>> para identificar problemas de rendimiento lo mejor es usar el Profiler de nuestras devtools de react en el explorador crhome
 
-137. CLAVE ==>> Como el useMemo queda un poco raro usado para funciones, es una función que se crea para devolver otra función ... existe el hook useCallback que es lo 
+137. **> CLAVE <** ==>> Como el useMemo queda un poco raro usado para funciones, es una función que se crea para devolver otra función ... existe el hook useCallback que es lo 
     mismo que el useMemo pero pensado para funciones. Por debajo el useCallback utiliza el useMemo de la misma forma que vimos. De hecho es lo mismo pero te ahorras el return, ya que le pasas directamente la función:
     Ej.
         const getMovies = useCallback(
@@ -2018,12 +2018,12 @@ RESULTADO:
 
     Simplemente con esto cada vez que escribimos modificando el input lanza una búsqueda y carga las películas.
 
-139. CLAVE ==>> Pero nos piden que no haga búsquedas de forma continuada, es decir, actualmente si escribimos matrix en el input realizamos 6 búsquedas diferentes:
+139. **> CLAVE <** ==>> Pero nos piden que no haga búsquedas de forma continuada, es decir, actualmente si escribimos matrix en el input realizamos 6 búsquedas diferentes:
     una para la m, otra para la ma, otra para la mat, otra para la matr, otra para la matri, y finalmente una para matrix.
     Esto es ineficiente y también genera un problema de RaceCondition, es decir se lanzan varias búsquedas asíncronas pero no sabemos cuál es el orden de finalización de todas ellas, 
     pudiendo ser la última en acabar una de las búsquedas anteriores y mostrando en pantalla un resultado que no es el correspondiente a matrix.
 
-140. CLAVE ==>> Debounce: es una técnica que nos sirve para resolver el problema anterior, no se va a lanzar la búsqueda de forma inmediata en cada letra tecleada por el usuario
+140. **> CLAVE <** ==>> Debounce: es una técnica que nos sirve para resolver el problema anterior, no se va a lanzar la búsqueda de forma inmediata en cada letra tecleada por el usuario
     en el input, sino que se va a esperar un tiempo antes de hacer algo. Podríamos bajarnos librerías que ya lo implementan, incluso un custom hook que lo hace ya hecho.
     Pero vamos a desarrollarlo para aprender como lo haríamos. Recomiendo usar el debounce de la librería Just. Es muy fácil de entender: 
     Se inicia un timeout por ejemplo de 500ms, si se vuelve a llamar se reinicia el timeout a 500ms de nuevo, si no llama nadie cuando el timeout termina ejecuta la función.
@@ -2067,6 +2067,1222 @@ RESULTADO:
         }, [])                  => podríamos poner getMovies como dependencia, pero ya hemos visto que nuestra getMovies es única y no cambia
 
     Ahora ya funciona todo.
+
+---------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------  
+
+
+Tienda y Carrito con React + Estado Global con useContext + Manejo de estado con useReducer
+https://www.youtube.com/watch?v=B9tDYAZZxcE
+---------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------  
+
+Carrito de compras:
+
+# Enunciado
+
+Ecommerce
+
+- [x] Muestra una lista de productos que vienen de un JSON
+- [x] Añade un filtro por categoría
+- [x] Añade un filtro por precio
+
+Haz uso de useContext para evitar pasar props innecesarias.
+
+Carrito:
+
+- [x] Haz que se puedan añadir los productos a un carrito.
+- [x] Haz que se puedan eliminar los productos del carrito.
+- [x] Haz que se puedan modificar la cantidad de productos del carrito.
+- [x] Sincroniza los cambios del carrito con la lista de productos.
+- [x] Guarda en un localStorage el carrito para que se recupere al recargar la página. (da puntos)
+
+
+142. Empezamos nuestro proyecto y App:
+    Ej.
+        npm create vite@latest
+            Preguntará nombre del proyecto: 06-shopping-cart
+            React
+            TypeScript o JavaScript + SWC
+        cd 06-shopping-cart
+        npm install
+        npm run dev 
+
+143. Quitamos lo que sale por defecto en nuestra App:
+    Ej.
+        function App () {
+            return (
+                <h1>Shopping cart</h1>
+            )
+        }
+
+        export default App
+
+144. Creamos un componente con los iconos que vamos a usar:
+    Ej.
+        export function AddToCartIcon () {
+            return (
+                <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' strokeWidth='1' stroke='currentColor' fill='none' strokeLinecap='round' strokeLinejoin='round'>
+                <path stroke='none' d='M0 0h24v24H0z' fill='none' />
+                <path d='M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0' />
+                <path d='M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0' />
+                <path d='M17 17h-11v-14h-2' />
+                <path d='M6 5l6 .429m7.138 6.573l-.143 1h-13' />
+                <path d='M15 6h6m-3 -3v6' />
+                </svg>
+            )
+        }
+
+        export function RemoveFromCartIcon () {
+            return (
+                <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' strokeWidth='1' stroke='currentColor' fill='none' strokeLinecap='round' strokeLinejoin='round'>
+                <path stroke='none' d='M0 0h24v24H0z' fill='none' />
+                <path d='M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0' />
+                <path d='M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0' />
+                <path d='M17 17h-11v-14h-2' />
+                <path d='M6 5l8 .571m5.43 4.43l-.429 3h-13' />
+                <path d='M17 3l4 4' />
+                <path d='M21 3l-4 4' />
+                </svg>
+            )
+        }
+
+        export function ClearCartIcon () {
+            return (
+                <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' strokeWidth='1' stroke='currentColor' fill='none' strokeLinecap='round' strokeLinejoin='round'>
+                <path stroke='none' d='M0 0h24v24H0z' fill='none' />
+                <path d='M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0' />
+                <path d='M17 17a2 2 0 1 0 2 2' />
+                <path d='M17 17h-11v-11' />
+                <path d='M9.239 5.231l10.761 .769l-1 7h-2m-4 0h-7' />
+                <path d='M3 3l18 18' />
+                </svg>
+            )
+        }
+
+        export function CartIcon () {
+            return (
+                <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' strokeWidth='1' stroke='currentColor' fill='none' strokeLinecap='round' strokeLinejoin='round'>
+                <path stroke='none' d='M0 0h24v24H0z' fill='none' />
+                <path d='M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0' />
+                <path d='M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0' />
+                <path d='M17 17h-11v-14h-2' />
+                <path d='M6 5l14 1l-1 7h-13' />
+                </svg>
+            )
+        }
+
+145. **> CLAVE <** ==>> para ver los campos que tiene nuestro json usamos: jsonformatter.curiousconcept.com
+146. Hacemos el componente que al recibir los productos los liste en pantalla:
+    Ej. Products.jsx
+        import './Products.css'
+        import { AddToCartIcon } from './Icons.jsx'
+
+        export function Products ({ products }) {        
+            return (
+                <main className='products'>                 => como va a ser nuestra parte principal del App, lo ponemos en un main
+                    <ul>
+                        { products.slice(0, 10).map( product => (       => **> CLAVE <** ==>> usamos slice para mostrar solo 10 productos del 0 al 10
+                            <li key={product.id}>
+                                <img 
+                                    src={product.thumbnail}
+                                    alt={product.title}
+                                />
+                                <div>
+                                    <strong>{product.title}</strong> - ${product.price}
+                                </div>
+                                <div>
+                                    <button>
+                                        <AddToCartIcon />
+                                    </button>
+                                </div>
+                                
+                            </li>
+                        ))}
+                    </ul>
+                </main>
+            )
+        }
+
+    Modificamos el App con el Products.jsx:
+    Ej.  App.jsx
+        import {products} from './mocks/products.json'
+        import {Products} from './components/Products.jsx'
+        
+        function App () {
+            return (
+                <Products products={products} />
+            )
+        }
+
+        export default App
+
+147. Creamos nuestro products.css con nuestro grid responsive:
+    Ej.
+        .products {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .products ul {
+            display: grid;
+            grid-template-columns: repeat( auto-fit, minmax(200px,1fr) );
+            gap: 1rem;
+        }
+
+        .products li {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            box-shadow: 0 0 10px 10px rgba(0, 0, 0, .1);
+            border-radius: 4px;
+            background: #111;
+            color: #fff;
+            padding: 1rem;
+        }
+
+        .products h3 {
+            margin: 0;
+        }
+
+        .products span {
+            font-size: 1rem;
+            opacity: .9;
+        }
+
+        .products img {
+            border-radius: 4px;
+            width: 100%;
+            aspect-ratio: 16/9;
+            display: block;
+            object-fit: cover;
+            background: #fff;
+        }
+
+148. Modificamos en el App para tener los products como un estado, y los inicializamos con el import de products que tenemos ahora:
+    Ej.  App.jsx
+        import {products as initialProducts} from './mocks/products.json'
+        import {Products} from './components/Products.jsx'
+        
+        function App () {
+            const [products] = useState(initialProducts)
+
+            return (
+                <Products products={products} />
+            )
+        }
+
+        export default App
+
+149. Establecemos un estado para filtrar por Categoría y precio:
+    Ej.  App.jsx
+        import {products as initialProducts} from './mocks/products.json'
+        import {Products} from './components/Products.jsx'
+        
+        function App () {
+            const [products] = useState(initialProducts)
+            const [filters, setFilters] = useState({                => creamos inicialmente un objeto
+                category: 'all',
+                minPrice: 0
+            })
+
+            return (
+                <Products products={products} />
+            )
+        }
+
+        export default App
+
+150. Ya podemos establecer una función para aplicar nuestros filtros según el estado filters:
+    Ej.  App.jsx
+        import {products as initialProducts} from './mocks/products.json'
+        import {Products} from './components/Products.jsx'
+        
+        function App () {
+            const [products] = useState(initialProducts)
+            const [filters, setFilters] = useState({                => creamos inicialmente un objeto
+                category: 'all',
+                minPrice: 0
+            })
+
+            const filterProducts = (products) => {              
+                return products.filter(product => {                 => **> CLAVE <** ==>> saber filtrar es básico
+                    return ( 
+                        product.price >= filters.minPrice &&
+                        (
+                            filters.category == 'all' ||
+                            product.category == filters.category
+                        )
+                    )
+                })   
+            }
+
+            const filteredProducts = filterProducts( products )     => conseguimos los productos filtrados
+
+            return (
+                <Products products={filteredProducts} />    => los presentamos filtrados
+            )
+        }
+
+        export default App
+
+151. **> CLAVE <** ==>> los filter en arrays de javascript funcionan así: 
+
+    return products.filter(product => {
+        return (condición)
+    })
+
+    Es lo mismo que decir:
+
+    “Devuélveme un nuevo array con todos los product donde (condición) sea true”.
+
+    ✅ ¿Cómo funciona .filter() internamente?
+        products.filter(product => {
+            // Si return true → lo incluye
+            // Si return false → lo descarta
+        })
+    
+        Entonces:
+
+        El return interno es lo que decide si cada product pasa el filtro.
+
+        El return externo devuelve todo el array filtrado.
+
+    Podemos evitar el return interno haciendo:
+    Ej.
+        const filterProducts = (products) => {              
+            return products.filter(product => {                 => **> CLAVE <** ==>> es equivalente al anterior con return interno
+                product.price >= filters.minPrice &&
+                (
+                    filters.category == 'all' ||
+                    product.category == filters.category
+                )
+            }) 
+        }
+
+152. Ya tenemos funcionando nuestro filtro, aunque nos faltaría la parte visual de selección o establecimiento de los filtros.
+    Vamos a crear un nuevo componente Header.jsx:
+    Ej. 
+        import {Filters} from './Filters.jsx'
+
+        export function Header () {
+            return (
+                <header>
+                    <h1>React Shop</h1>
+                    <Filters />
+                </header>
+            )
+        }
+
+    Modificamos nuestro App para que utilice nuestro Header.jsx:
+    Ej.  App.jsx
+        import {products as initialProducts} from './mocks/products.json'
+        import {Products} from './components/Products.jsx'
+        
+        function App () {
+            const [products] = useState(initialProducts)
+            const [filters, setFilters] = useState({                => creamos inicialmente un objeto
+                category: 'all',
+                minPrice: 0
+            })
+
+            const filterProducts = (products) => {              
+                return products.filter(product => {                 => **> CLAVE <** ==>> saber filtrar es básico
+                    return ( 
+                        product.price >= filters.minPrice &&
+                        (
+                            filters.category == 'all' ||
+                            product.category == filters.category
+                        )
+                    )
+                })   
+            }
+
+            const filteredProducts = filterProducts( products )     => conseguimos los productos filtrados
+
+            return (
+                <>                          => IMPORTANTE: tenemos que poner un react.Fragment
+                    <Header />
+                    <Products products={filteredProducts} />    => los presentamos filtrados
+                </>                
+            )
+        }
+
+        export default App
+
+153. Creamos nuestro componente de Filtros:
+    Ej. Filters.jsx
+        export function Filters () {
+            return (
+                <section className='filters'> 
+                    <div>
+                        <label htmlFor='price'>Price</label>    
+                        <input                                  => IMPORTANTE: si utilizamos un rango no veremos el precio seleccionado en el rango. Ver punto 155
+                            type='range'
+                            id='price'
+                            min='0'
+                            max='1000'
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor=''>Category</label>
+                        <select id='category'
+                            <option value='all'>Todas</option>
+                            <option value='laptops'>Portátiles</option>
+                            <option value='smartphones'>Móviles</option>
+                        </select>
+                    </div>
+                </section>
+            )
+        }
+
+154. Añadimos un Filters.css:
+
+155. Queremos ver el precio seleccionado por el range de nuestro input. Para ello creamos un estado:
+    Ej. Filters.jsx
+        export function Filters () {
+            const [minPrice, setMinPrice] = useState(0)         => añadimos un nuevo estado que tendrá el valor del filtro
+
+            const handleChangeMinPrice = (event) => {
+                setMinPrice(event.target.value)                 => cambiamos el estado al nuevo valor segun el evento
+            }
+
+            return (
+                <section className='filters'> 
+                    <div>
+                        <label htmlFor='price'>Price</label>    
+                        <input                                  => IMPORTANTE: si utilizamos un rango no veremos el precio seleccionado en el rango. Ver punto 155
+                            type='range'
+                            id='price'
+                            min='0'
+                            max='1000'
+                            onchange={handleChangeMinPrice}     => establecemos el evento change cuando se modique el range
+                        />
+                        <span>${minPrice}</span>                => visualizamos el valor de nuestro estado
+                    </div>
+                    <div>
+                        <label htmlFor=''>Category</label>
+                        <select id='category'
+                            <option value='all'>Todas</option>
+                            <option value='laptops'>Portátiles</option>
+                            <option value='smartphones'>Móviles</option>
+                        </select>
+                    </div>
+                </section>
+            )
+        }
+
+    **> CLAVE <** ==>> es importante no poner el span con el valor de minPrice delante del range, porque sino al renderizarse hará cosas raras, como saltos. Es mejor renderizarlo 
+    después del range.
+
+156. Herramienta para hacer croquis: excalidraw.com
+
+157. **> CLAVE <** ==>> PROP DRILLING: el problema aparece cuando tenemos el setFilters en nuesto componente padre App.jsx, este tiene a sus hijos Header.jsx y Products.jsx. Y a su 
+    vez el Header.jsx tiene como hijo al Filters.jsx. Es este Filters.jsx el que necesita leer y poder actualizar el estado filters que está en nuestro App.jsx. Por lo que deberíamos pasar desde
+    App.jsx a Header.jsx y a Filters.jsx dicho estado, este camino por el que hay que pasar la prop es el problema conocido como PROP DRILLING( quiere decir que estamos haciendo un
+    taladro hacia abajo para pasar la prop ).
+
+    Hacemos los cambios para pasar el prop:
+    Ej. App.jsx
+        function App () {
+            const [products] = useState(initialProducts)
+            const [filters, setFilters] = useState({            
+                category: 'all',
+                minPrice: 0
+            })
+
+            const filterProducts = (products) => {              
+                return products.filter(product => {             
+                    return ( 
+                        product.price >= filters.minPrice &&
+                        (
+                            filters.category == 'all' ||
+                            product.category == filters.category
+                        )
+                    )
+                })   
+            }
+
+            const filteredProducts = filterProducts( products ) 
+
+            return (
+                <>                          
+                    <Header changeFilters={setFilters} />           => pasamos el parámetro al Header
+                    <Products products={filteredProducts} />    
+                </>                
+            )
+        }
+
+    Ej. Header.jsx
+        export function Header ( {changeFilters} ) {
+            return (
+                <header>
+                    <h1>React Shop</h1>
+                    <Filters onChange={changeFilters} />
+                </header>
+            )
+        }
+
+    Ej. Filters.jsx
+        export function Filters ( {onchange} ) {
+            const [minPrice, setMinPrice] = useState(0)         
+
+            const handleChangeMinPrice = (event) => {
+                >> ***** AQUI ALGO HUELE MAL ***** <<
+                    PROBLEMA: DOS FUENTES DE LA VERDAD      **> CLAVE <** ==>>  es es porque en esta function Filters tenemos un estado local y luego estamos modificando el estado global del app
+                                                               mediante la onChange. ESTO ES UNA MALA PRACTICA. Ver resolución en punto  165
+
+                setMinPrice(event.target.value)  
+                onChange(prevState => ({                    => cambiamos el estado de nuestros filtros, en concreto el minPrice
+                    ...prevState,
+                    minPrice: event.target.value
+                }))               
+            }
+
+            const handleChangeCategory = (event) => {
+
+                onChange(prevState => ({                    => cambiamos el estado de nuestros filtros, en concreto el category
+                    ...prevState,
+                    category: event.target.value
+                }))               
+            }
+
+            return (
+                <section className='filters'> 
+                    <div>
+                        <label htmlFor='price'>Price</label>    
+                        <input                                  
+                            type='range'
+                            id='price'
+                            min='0'
+                            max='1000'
+                            onchange={handleChangeMinPrice}     
+                        />
+                        <span>${minPrice}</span>                
+                    </div>
+                    <div>
+                        <label htmlFor='category'>Category</label>
+                        <select 
+                            id='category'
+                            onChange={handleChangeCategory}>
+                            <option value='all'>Todas</option>
+                            <option value='laptops'>Portátiles</option>
+                            <option value='smartphones'>Móviles</option>
+                        </select>
+                    </div>
+                </section>
+            )
+        }
+
+        **> CLAVE <** ==>> Estamos pasando un useState desde un componente padre a un componente hijo y en el componente hijo lo usamos sin saber que es un 
+        estado de react. No sabemos que onChange es un estado de react. Esto no se debe hacer así.            
+
+158. **> CLAVE <** ==>> No usar useMemo o useCallback por defecto porque el coste puede ser mayor que el beneficio, hacerlo solo cuando tengamos un problema de rendimiento.
+
+159. **> CLAVE <** ==>> Nuevo hook useId: sirve para generar un ID único que además usa server side rendering. Se basan en la posición del hook dentro de react en nuestra Aplicación,
+    y como los hooks siempre tienen que mantener el mismo orden, pues será un identificador único incluso en el lado de servidor, es un identificador Universal, será el mismo en cliente
+    y en servidor. No se puede usar para iteraciones, es decir como key.map(...), eso requiere un identificador único dentro del elemento a iterar, y esto es un identificador basado en
+    el orden de llamada. Es ideal para Ids en código de renderizado html.
+
+    Para evitar errores en nuestro código anterior hacemos uso de este hook:
+    Ej. Filters.jsx
+        export function Filters ( {onchange} ) {
+            const [minPrice, setMinPrice] = useState(0)   
+            const minPriceFilterId = useId()                => IMPORTANTE: creamos los Identificadores únicos gracias al hook
+            const categoryFilterId = useId()      
+
+            const handleChangeMinPrice = (event) => {
+                setMinPrice(event.target.value)  
+                onChange(prevState => ({                    
+                    ...prevState,
+                    minPrice: event.target.value
+                }))               
+            }
+
+            const handleChangeCategory = (event) => {
+                onChange(prevState => ({                    
+                    ...prevState,
+                    category: event.target.value
+                }))               
+            }
+
+            return (
+                <section className='filters'> 
+                    <div>
+                        <label htmlFor={minPriceFilterId}>Price</label>             => usamos el Id creado con el hook useId()
+                        <input                                  
+                            type='range'
+                            id={minPriceFilterId}                                   => usamos el Id creado con el hook useId()
+                            min='0'
+                            max='1000'
+                            onchange={handleChangeMinPrice}     
+                        />
+                        <span>${minPrice}</span>                
+                    </div>
+                    <div>
+                        <label htmlFor={categoryFilterId}>Category</label>          => usamos el Id creado con el hook useId()
+                        <select 
+                            id={categoryFilterId}                                   => usamos el Id creado con el hook useId()
+                            onChange={handleChangeCategory}>
+                            <option value='all'>Todas</option>
+                            <option value='laptops'>Portátiles</option>
+                            <option value='smartphones'>Móviles</option>
+                        </select>
+                    </div>
+                </section>
+            )
+        }
+
+160. Vamos a crear un custom hook para todo el tema de filteredProducts:
+    Ej. useFilters.js
+        function useFilters () {
+            const [filters, setFilters] = useState({            
+                category: 'all',
+                minPrice: 0
+            })
+
+            const filterProducts = (products) => {              
+                return products.filter(product => {             
+                    return ( 
+                        product.price >= filters.minPrice &&
+                        (
+                            filters.category == 'all' ||
+                            product.category == filters.category
+                        )
+                    )
+                })   
+            }
+            return { filterProducts, setFilters }
+        }
+    Modificamos nuestra App para usar el custom hook
+    Ej. App.jsx
+        function App () {
+            const [products] = useState(initialProducts)
+            const { filterProducts, setFilters } = useFilters()
+
+            const filteredProducts = filterProducts( products ) 
+
+            return (
+                <>                          
+                    <Header changeFilters={setFilters} />           => pasamos el parámetro al Header
+                    <Products products={filteredProducts} />    
+                </>                
+            )
+        }
+
+161. Creamos un componente footer que además incorpora los filtros que tenemos activados que solo aparecerá si estamos en desarrollo:
+    Como necesitaremos los filters los sacamos de nuestro useFilters:
+    Ej. useFilters.js
+        function useFilters () {
+            const [filters, setFilters] = useState({            
+                category: 'all',
+                minPrice: 0
+            })
+
+            const filterProducts = (products) => {              
+                return products.filter(product => {             
+                    return ( 
+                        product.price >= filters.minPrice &&
+                        (
+                            filters.category == 'all' ||
+                            product.category == filters.category
+                        )
+                    )
+                })   
+            }
+            return { filters, filterProducts, setFilters }
+
+    Ej. Footer.jsx
+        import './Footer.css'
+
+        export function Footer ({filters}) {
+            return (
+                <footer className='footer'>
+                    {
+                        JSON.stringify(filters, null, 2)            =>  IMPORTANTE: esto puede ser util para montarnos como un debuger de estados en nuestro componente
+                    }
+                    {
+                        <h4>Prueba técnica de React ⚛️ － <span>@midudev</span></h4>
+                        <h5>Shopping Cart con useContext & useReducer</h5>
+                    }
+                </footer>
+            )
+        }
+
+    Para saber si estamos en desarrollo lo hacemos en un config.js:
+    Ej. config.js
+        export const IS_DEVELOPMENT = process.env.NODE_ENV != 'production'      => NODE_ENV cambia de forma automática con production cuando lo empaquetamos para productivo
+
+    Lo llamamos en el App.jsx controlando si es en desarrollo:
+    Ej. App.jsx
+        function App () {
+            const [products] = useState(initialProducts)
+            const { filterProducts, setFilters } = useFilters()
+
+            const filteredProducts = filterProducts( products ) 
+
+            return (
+                <>                          
+                    <Header changeFilters={setFilters} />       
+                    <Products products={filteredProducts} />    
+                    {IS_DEVELOPMENT && <Footer filters={filters}/>}
+                </>                
+            )
+        }
+
+162. Vemos entonces que parece que el componente App tiene que pasar todo el tema de los filters al resto de componentes, sería mucho más interesante que solo los componentes que tengan 
+    que acceder a los filtros puedan obtenerlos sin depender del componente App.
+
+163. **> CLAVE <** ==>> Nuevo Hook useContext: el contexto es algo separado de nuestro árbol de componentes y que pueden leer de forma separada. ¿cómo podemos acceder a esa información de contexto
+    desde nuestros componentes y app ? Envolviendolos con un Provider. De tal forma que todo lo que envolvemos con nuestro Provider tendrá acceso a ese contexto.
+
+    Ej. /context/filter.jsx
+
+    1. CREAMOS EL CONTEXTO:
+    import { createContext } from 'react'
+
+    // Este es el que tenemos que consumir
+    export const FiltersContext = createContext()
+
+    2. CREAMOS EL PROVIDER PARA ESE CONTEXTO:
+    // Este es el que nos provee de acceso al contexto
+    export function FiltersProvider ({ children }) {
+        return (
+            <FiltersContext.Provider value={{
+                filters,
+                setFilters
+            }}
+            >
+                {children}
+            </FiltersContext.Provider>
+        )
+    }
+
+    3. ENVOLVER NUESTRA APP con NUESTRO PROVIDER:
+    // simplemente envolvemos con nuestro provider en este caso toda la App:
+    Ej. main.jsx
+        import ReactDOM from 'react-dom/client'
+        import App from './App'
+        import {FiltersProvider} from './context/filters.jsx'
+        import './index.css'
+
+        ReactDOM.createRoot(document.getElementById('root')).render(
+            <FiltersProvider>
+                <App />
+            </FiltersProvider>
+        )
+
+    4. CONSUMIMOS EL CONTEXTO:
+        Ej. custom hook useFilters.jsx
+            import { useContext } from 'react'                                  => indicamos el uso del hook
+            import { FiltersContext } from '../context/filters.jsx'             => cargamos el fichero de contexto en nuestro custom hook
+
+            export function useFilters () {
+                const { filters, setFilters } = useContext(FiltersContext)      => cargamos los estados y funciones desde el contexto 
+
+                const filterProducts = (products) => {
+                    return products.filter(product => {
+                    return (
+                        product.price >= filters.minPrice &&
+                        (
+                        filters.category === 'all' ||
+                        product.category === filters.category
+                        )
+                    )
+                    })
+                }
+
+                return { filters, filterProducts, setFilters }
+            }
+
+    En este punto nuestro contexto ya lo estamos consumiendo, pero hemos puesto un contexto estático, por lo que no cambiará aunque modifiquemos nuestro estado filters.
+    Pero podemos tener contextos con datos estáticos y no es ningún error.
+    Vamos a arreglarlo para que sea dinámico:
+
+        Ej. context/filters.jsx
+        import { createContext, useState } from 'react'     => incorporamos el useState
+
+        // Este es el que tenemos que consumir
+        export const FiltersContext = createContext()
+
+        // Este es el que nos provee de acceso al contexto
+        export function FiltersProvider ({ children }) {
+            const [filters, setFilters] = useState({               => creamos nuestro estado dinámico para filters
+                category: 'all',
+                minPrice: 250
+            })
+
+            return (
+                <FiltersContext.Provider value={{
+                    filters,                            => nuestro value devuelve el contenido de nuestro estado y su función de modificación
+                    setFilters
+                }}
+                >
+                {children}
+                </FiltersContext.Provider>
+            )
+        }
+
+164. Eliminamos el PROP DRILLING que tenemos antes de crear el contexto:
+    Ej. Header.jsx
+        import { Filters } from './Filters.jsx'
+
+        export function Header () {
+            return (
+                <header>
+                    <h1>React Shop 🛒</h1>
+                    <Filters />
+                </header>
+            )
+        }
+
+    Ej. useFilters.jsx
+        import { useContext } from 'react'
+        import { FiltersContext } from '../context/filters.jsx'     => cargamos el contexto
+
+        export function useFilters () {
+            const { filters, setFilters } = useContext(FiltersContext)      => usamos el contexto
+
+            const filterProducts = (products) => {
+                return products.filter(product => {
+                    return (
+                        product.price >= filters.minPrice &&
+                        (
+                            filters.category === 'all' ||
+                            product.category === filters.category
+                        )
+                    )
+                })
+            }
+
+            return { filters, filterProducts, setFilters }
+        }
+
+    Ej. Footer.jsx
+        import './Footer.css'
+        import { useContext } from 'react'
+        import { FiltersContext } from '../context/filters.jsx'     => cargamos el contexto
+
+        export function Footer () {
+            const { filters } = useContext(FiltersContext)      => usamos el contexto
+
+            return (
+                <footer className='footer'>
+                    {
+                        JSON.stringify(filters, null, 2)            =>  IMPORTANTE: esto puede ser util para montarnos como un debuger de estados en nuestro componente
+                    }
+                    {
+                        <h4>Prueba técnica de React ⚛️ － <span>@midudev</span></h4>
+                        <h5>Shopping Cart con useContext & useReducer</h5>
+                    }
+                </footer>
+            )
+        }
+
+    Ej. App.jsx
+        function App () {
+            const [products] = useState(initialProducts)
+            const { filterProducts } = useFilters()
+
+            const filteredProducts = filterProducts( products ) 
+
+            return (
+                <>                          
+                    <Header />                                          => quitamos el paso de prop
+                    <Products products={filteredProducts} />    
+                    {IS_DEVELOPMENT && <Footer/>}                       => quitamos el paso de prop
+                </>                
+            )
+        }        
+
+165. Nos debemos fiar de un solo estado, debe ser el global, por lo que eliminamos el estado local en Filters.jsx:
+    Ej. Filters.jsx
+        import { useId } from 'react'
+        import { useFilters } from '../hooks/useFilters.js'
+        import './Filters.css'
+
+        export function Filters () {
+            const { filters, setFilters } = useFilters()        => traemos filters como estado global a nuestro componente desde nuestro custom hook
+
+            const minPriceFilterId = useId()
+            const categoryFilterId = useId()
+
+            const handleChangeMinPrice = (event) => {
+                setFilters(prevState => ({
+                    ...prevState,
+                    minPrice: event.target.value
+                }))
+            }
+
+            const handleChangeCategory = (event) => {
+                setFilters(prevState => ({
+                ...prevState,
+                category: event.target.value
+                }))
+            }
+
+            return (
+                <section className='filters'>
+
+                <div>
+                    <label htmlFor={minPriceFilterId}>Precio a partir de:</label>
+                    <input
+                    type='range'
+                    id={minPriceFilterId}
+                    min='0'
+                    max='1000'
+                    onChange={handleChangeMinPrice}
+                    value={filters.minPrice}                    => usamos el filters global
+                    />
+                    <span>${filters.minPrice}</span>            => usamos el filters global
+                </div>
+
+                <div>
+                    <label htmlFor={categoryFilterId}>Categoría</label>
+                    <select id={categoryFilterId} onChange={handleChangeCategory}>
+                    <option value='all'>Todas</option>
+                    <option value='laptops'>Portátiles</option>
+                    <option value='smartphones'>Celulares</option>
+                    </select>
+                </div>
+
+                </section>
+
+            )
+        }
+
+166. IMPORTANTE: ¿si ponemos en varios sitios nuestro Provider se cargará varias veces? NO, como es javascript el import es un singleton, solo se carga una vez.
+
+167. Hacemos la parte del CARRITO del enunciado:
+    Creamos el componente Cart.jsx:
+    Ej. Cart.jsx
+        import './Cart.css'
+        import { useId } from 'react'
+        import { CartIcon, ClearCartIcon } from './Icons.jsx'
+
+        export function Cart () {
+            const cartCheckboxId = useId()
+        
+            return (
+                <>
+                    <label className='cart-button' htmlFor={cartCheckboxId}>
+                        <CartIcon />
+                    </label>
+                    <input id={cartCheckboxId} type='checkbox' hidden />
+                    <aside className='cart'>
+                        <ul>
+                            {cart.map(product => (
+                                <CartItem
+                                key={product.id}
+                                addToCart={() => addToCart(product)}
+                                {...product}
+                                />
+                            ))}
+                        </ul>
+
+                        <button onClick={clearCart}>
+                            <ClearCartIcon />
+                        </button>
+                    </aside>
+                </>
+            )
+        }
+
+168. Le damos estilos al carrito:
+    Ej.
+        .cart {
+            background: #000;
+            display: none;          => por defecto no se muestra
+            padding: 32px;
+            position: fixed;
+            right: 0px;
+            top: 0px;
+            width: 200px;
+        }
+
+        ...
+
+        .cart-button ~ input:checked ~ .cart {      => lo que hace esto es que cuando el botón esté checked se vea el carrito
+            height: 100%;
+            display: block;
+        }
+
+        **> CLAVE <** ==>> CSS Avanzado: selector HERMANO (~); este css visto antes: “Selecciona el .cart que esté después de un <input> que está checked, y ese <input> a su vez debe estar después de .cart-button”:
+        Ej.
+            <label className='cart-button' htmlFor={cartCheckboxId}>
+                <CartIcon />
+            </label>
+            <input id={cartCheckboxId} type='checkbox' hidden />
+            <aside className='cart'>                                    => selecciona esto y lo hace visible con todo el alto
+                ...
+            </aside>
+
+169. Creamos el contexto y el provider con su children para el carrito:
+    Ej. cart.jsx
+        import { createContext, useState } from 'react'
+        
+        export const CartContext = createContext()
+        export function CartProvider ({ children }) {
+            const { cart, setCart } = useState([])
+
+            const addCart = product => {
+                // ver si el producto está ya en el carrito
+                const productInCartIndex = cart.findIndex(item => item.id == product.id)  => buscamos el índice del item que tenga el mismo id que nuestro producto
+
+                if(productInCartIndex >= 0) { => existe el producto                
+                    const newCart = structuredClone(cart)       => crea un clon profundo de nuestro carrito en newCart. Puede que no sea la forma más eficiente para arrays grandes
+                    newCart[productInCartIndex].quantity += 1   => aumentamos la cantidad de ese producto en nuestra copia del carrito
+                    setCart(newCart)                            => actualizamos nuestro carrito con la copia
+                }
+
+                // el spread operator no es aconsejable porque no hace una copia profunda, solo superficial, y eso nos podría dar problemas.
+                // otras alternativas más rápidas sería con map o con slice, esta última sería la mejor.
+
+                // El producto no está en el carrito
+                setCart(prevState => ([
+                    ...prevState,
+                    {
+                        ...product,
+                        quantity: 1
+                    }
+                ]))
+            }
+
+            const clearCart = () => {
+                setCart([])
+            }
+
+            return (
+                <CartContext.Provider value={{
+                    cart,
+                    addToCart,
+                    clearCart
+                }}
+                >
+                    {children}
+                </CartContext.Provider>
+            )
+        }
+
+170. Hacemos un custom hook para nuestro carrito:
+    Ej. useCart.jsx
+        import { useContext } from 'react'
+        import { CartContext } from '../context/cart.jsx'
+
+        export const useCart = () => {
+            const context = useContext(CartContext)
+
+            if (context === undefined) {                                        => control para saber si tenemos el dato de contexto, puede ser que no tengamos contexto en esta ubicación en la que estamos intentando usar nuestro contexto.
+                throw new Error('useCart must be used within a CartProvider')
+            }
+
+            return context
+        }
+
+171. En este caso no necesitamos el contexto en nuestra App, por lo que ponemos el provider en el mismo App dejándo el componente App.jsx fuera del envoltorio del Provider.
+    Ej. App.jsx
+        import { Cart } from './components/Cart.jsx'
+        import { CartProvider } from './context/cart.jsx'
+
+        function App () {
+            const { filterProducts } = useFilters()
+
+            const filteredProducts = filterProducts(initialProducts)
+
+            return (
+                <CartProvider>
+                    <Header />
+                    <Cart />
+                    <Products products={filteredProducts} />
+                    {IS_DEVELOPMENT && <Footer />}
+                </CartProvider>
+            )
+        }
+
+        export default App
+
+172. En nuestro Footer añadimos el carrito:
+    Ej.Footer.jsx
+        import './Footer.css'
+        import {useCart} from '../hooks/useCart.js'
+        import {useFilters} from '../hooks/useFilters.js'
+
+        export function Footer () {
+            const { filters } = useFilters()
+            const { cart } = useCart()
+
+            return (
+                <footer className='footer'>
+                    {
+                        JSON.stringify(filters, null, 2)            
+                    }
+                                        {
+                        JSON.stringify(cart, null, 2)            
+                    }
+                    {
+                        <h4>Prueba técnica de React ⚛️ － <span>@midudev</span></h4>
+                        <h5>Shopping Cart con useContext & useReducer</h5>
+                    }
+                </footer>
+            )
+        }
+
+173. Modificamos nuestro Products.jsx con el click del añadir al carrito y un chequeo de si un producto está en el carrito:
+    Ej. Products.jsx
+        import './Products.css'
+        import { AddToCartIcon } from './Icons.jsx'
+        import { useCart } from './hooks/useCart.js'
+
+        export function Products ({ products }) {  
+            const { addToCart, RemoveFromCart, cart }=useCart()          => añadimos lo que necesitamos del custom hook
+
+            const checkProductInCart = product => {
+                return cart.some(item => item.id == product.id)
+            }
+
+            return (
+                <main className='products'>                 
+                    <ul>
+                        { products.slice(0, 10).map( product => {
+                            const isProductInCart = checkProductInCart(product)    
+
+                            return (
+                                <li key={product.id}>
+                                    <img 
+                                        src={product.thumbnail}
+                                        alt={product.title}
+                                    />
+                                    <div>
+                                        <strong>{product.title}</strong> - ${product.price}
+                                    </div>
+                                    <div>
+                                        <button onclick={() => {
+                                            isProductInCart 
+                                                ? RemoveFromCart(product)       => añadimos la opción de eliminar del carrito
+                                                : addToCart(product)
+                                        }}
+                                        >
+                                            {
+                                                isProductInCart
+                                                    ? <RemoveFromCartIcon />
+                                                    : <AddToCartIcon />
+                                            }
+                                        </button>
+                                    </div>                
+                                </li>
+                            )}
+                        )}
+                    </ul>
+                </main>
+            )
+        }
+
+
+174. En nuestro contexto / provider añadimos la función RemoveFromCart:
+    Ej. cart.jsx
+        import { createContext, useState } from 'react'
+        
+        export const CartContext = createContext()
+        export function CartProvider ({ children }) {
+            const { cart, setCart } = useState([])
+
+            const addCart = product => {
+                // ver si el producto está ya en el carrito
+                const productInCartIndex = cart.findIndex(item => item.id == product.id)  
+
+                if(productInCartIndex >= 0) { => existe el producto                
+                    const newCart = structuredClone(cart)       
+                    newCart[productInCartIndex].quantity += 1   
+                    setCart(newCart)                            
+                }
+
+                // El producto no está en el carrito
+                setCart(prevState => ([
+                    ...prevState,
+                    {
+                        ...product,
+                        quantity: 1
+                    }
+                ]))
+            }
+
+            const RemoveFromCart = product => {                                             => nueva funcion para eliminar un producto del carro
+                setCart(prevState => prevState.filter(item => item.id != product.id))       => **> CLAVE <** ==>>  el uso de prevState es algo que nos permite las funciones en javascript, ya que viene el estado previo y podemos acceder a el
+            }                                                                                       No lo hacemos con el estado directamente porque podríamos tener problemas de RaceCondition y no tener el último valor actualizado en el estado.
+
+            const clearCart = () => {
+                setCart([])
+            }
+
+            return (
+                <CartContext.Provider value={{
+                    cart,
+                    addToCart,
+                    RemoveFromCart,                             => añadimos la nueva funcion para que la devuelva el provider
+                    clearCart
+                }}
+                >
+                    {children}
+                </CartContext.Provider>
+            )
+        }
+
+
+173. Modificamos nuestro Products.jsx con el click del añadir al carrito y un chequeo de si un producto está en el carrito:
+    Ej. Products.jsx
+        import './Products.css'
+        import { AddToCartIcon } from './Icons.jsx'
+        import { useCart } from './hooks/useCart.js'
+
+        export function Products ({ products }) {  
+            const {addToCart}=useCart()
+
+            const checkProductInCart = product => {
+                return cart.some(item => item.id == product.id)
+            }
+
+                        return (
+                <main className='products'>                 
+                    <ul>
+                        { products.slice(0, 10).map( product => {
+                            const isProductInCart = checkProductInCart(product)    => chequeamos
+
+                            return (
+                                <li key={product.id}>
+                                    <img 
+                                        src={product.thumbnail}
+                                        alt={product.title}
+                                    />
+                                    <div>
+                                        <strong>{product.title}</strong> - ${product.price}
+                                    </div>
+                                    <div>
+                                        <button onclick={() => {
+                                            isProductInCart 
+                                                ? RemoveFromCart(product)       
+                                                : addToCart(product)
+                                        }}
+                                        >
+                                            {
+                                                isProductInCart                     => condicionamos las opciones
+                                                    ? <RemoveFromCartIcon />
+                                                    : <AddToCartIcon />
+                                            }
+                                        </button>
+                                    </div>                
+                                </li>
+                            )}
+                        )}
+                    </ul>
+                </main>
+            )
+        }
+
+
+
+1:31
 
 ---------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------  
