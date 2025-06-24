@@ -3280,9 +3280,762 @@ Carrito:
             )
         }
 
+174. Vamos a vaciar el carrito:
+    Ej. Cart.jsx    
+        import { useId } from 'react'
+        import { CartIcon, ClearCartIcon } from './Icons.jsx'
+        import { useCart } from '../hooks/useCart.js'
 
+        function CartItem ({ thumbnail, price, title, quantity, addToCart }) {
+            return (
+                <li>
+                    <img
+                        src={thumbnail}
+                        alt={title}
+                    />
+                    <div>
+                        <strong>{title}</strong> - ${price}
+                    </div>
 
-1:31
+                    <footer>
+                        <small>
+                            Qty: {quantity}
+                        </small>
+                        <button onClick={addToCart}>+</button>      => llamamos a la funcion que añade el carrito
+                    </footer>
+                </li>
+            )
+        }
+
+        export function Cart () {
+            const cartCheckboxId = useId()
+            const { cart, clearCart, addToCart } = useCart()
+
+            return (
+                <>
+                    <label className='cart-button' htmlFor={cartCheckboxId}>
+                        <CartIcon />
+                    </label>
+                    <input id={cartCheckboxId} type='checkbox' hidden />
+
+                    <aside className='cart'>
+                        <ul>
+                            {cart.map(product => (
+                                <CartItem
+                                    key={product.id}
+                                    addToCart={() => addToCart(product)}    => pasamos ya la función con el código, de esa forma el componente CartItem no requiere conocer la función
+                                    {...product}                                este addToCart está dentro del hook useCart. 
+                                />
+                            ))}
+                        </ul>
+
+                        <button onClick={clearCart}>
+                            <ClearCartIcon />
+                        </button>
+                    </aside>
+                </>
+            )
+        }
+
+175. **> CLAVE <** ==>> es recomendable usar un custom hook para importar el contexto simplemente aunque no lo use, por:
+
+    Ventajas de usar un custom hook como useCart()
+        1. Encapsulación y validación
+            Tu useCart incluye una verificación:
+
+            if (context === undefined) {
+                throw new Error('useCart must be used within a CartProvider')
+            }
+            
+            Esto evita errores silenciosos y te da una advertencia clara si alguien usa el hook fuera del CartProvider, algo que no tendrías si usas useContext(CartContext) directamente.
+
+        2. Abstracción limpia
+            Al usar useCart():
+
+            const { cart, clearCart, addToCart } = useCart()
+                → ocultas los detalles de cómo funciona el contexto internamente. Si más adelante quieres cambiar la implementación (por ejemplo, cambiar de Context a Zustand, Redux, etc.), solo tienes que actualizar el custom hook, no todos los componentes que lo consumen.
+
+        3. Consistencia en toda la app
+            Establece un patrón claro y uniforme. Si todos usan useCart() en lugar de useContext(CartContext), es más fácil:
+                Refactorizar
+                Entender el código
+                Prevenir errores
+
+        4. Escalabilidad
+            Puedes enriquecer useCart() con lógica adicional, por ejemplo:
+
+                export const useCart = () => {
+                    const context = useContext(CartContext)
+                    if (!context) throw new Error('useCart must be used within CartProvider')
+                    const { cart, addToCart, clearCart } = context
+                    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0)
+                    return { cart, addToCart, clearCart, totalItems }
+                }
+
+            Ahora todos los componentes que usen useCart() tienen acceso a totalItems sin duplicar la lógica.
+
+176. Función .bind() nos permite asignar el valor this que tu quieras y devolver la misma función pero con el this especificado, era útil en los componentes de clase, pero no es una buena práctica usarlo en react:
+    Ej.
+        addToCart={() => addToCart( product )}    mejor que   addToCart={addToCart.bind( this, product )}
+
+177. **> CLAVE <** ==>> el useReduce() es un hook que nos permite manejar el estado de una manera escalable porque se basa en que recibe el estado actual y la acción que tiene que hacer y a partir de ellos devuelve el nuevo 
+    estado. El estado inicial puede ser cualquier cosa, un objeto, un array, un valor, ... IMPORTANTE: no se llama Reduce porque reduce el estado, sería que lo transforma, como en cocina es una reducción a fuego lento.
+    Ej.
+        // necesitamos un estado inicial
+        const initialState = []
+        // y un Reducer
+        const reducer = (state, action) => {
+            const { type: actionType, payload: actionPayload } = action
+            switch (action.type) {
+                case 'ADD_TO_CART': {
+                    const productInCartIndex = state.findIndex(item => item.id === action.payload.id)
+
+                    if(productInCartIndex >= 0) {
+                        const newState = structuredClone(state)
+                        newState[productInCartIndex].quantity += 1
+                        return newState                                  => devuelve directamente el nuevo estado
+                    }
+
+                    // producto no está en el carrito
+                    return [
+                        ...state,
+                        {
+                            ...actionPayload,   // product
+                            quantity: 1
+                        }
+                    ]
+                }
+
+                case 'REMOVE_FROM_CART': {
+                    const { id } = actionPayload
+                    return state.filter(item => item.id != id)
+                }
+
+                case 'CLEAR_CART': {
+                    return initialState
+                }
+            }
+            return state
+        }
+
+    Con esto ya tenemos nuestro Reducer, lo guardamos en el directorio reducers como cart.js, ahora lo llamamos desde nuestro Provider y lo dejamos simplificado:
+    Ej. context/cart.jsx 
+        import { useReducer, createContext } from 'react'
+        import { cartReducer, cartInitialState } from '../reducers/cart.js'     => importamos el fichero con nuestro reduce
+
+        export const CartContext = createContext()
+
+        function useCartReducer () {                                                => creamos un funcion para usar el reduce
+            const [state, dispatch] = useReducer(cartReducer, cartInitialState)     => recibimos de llamada al hook de react el state y un dispatch, le mandamos el cartReducer que exportamos en nuestro reducer y el estado inicial
+
+            const addToCart = product => dispatch({     => usamos al funcion dispatch para llamar a nuestro reduce
+                type: 'ADD_TO_CART',
+                payload: product
+            })
+
+            const removeFromCart = product => dispatch({    => usamos al funcion dispatch para llamar a nuestro reduce
+                type: 'REMOVE_FROM_CART',
+                payload: product
+            })
+
+            const clearCart = () => dispatch({ type: 'CLEAR_CART' })    => usamos al funcion dispatch para llamar a nuestro reduce
+
+            return { state, addToCart, removeFromCart, clearCart }
+        }
+
+    Vale la pena porque permite separar toda la lógica de actualización de tu estado del resto en una función. Que la podemos llevar a donde queramos. Es fácil de testear:
+    Solo tenemos que llamar a la función reducer para testearlo, mientras que sin ella las funciones están dentro de nuestro componente y para testearlas tendremos que renderizar
+    nuestro componente, ya que están en el cuerpo del mismo provider.
+    Ejemplo de test:
+        expect(
+            reducer([], {type: 'ADD_TO_CART', payload: {id:1}})
+        ).toEqual([{id:1, quantity: 1}])
+    
+    Cuando usarlo: si tenemos muchos useState uno detrás de otro. También podríamos sacarlo en un custom hook.
+
+178. Podemos mejorar nuestro reducer añadiendo un enumerado de las acciones:
+    Ej.
+        export const CART_ACTION_TYPES = {
+            ADD_TO_CART: 'ADD_TO_CART',
+            REMOVE_FROM_CART: 'REMOVE_FROM_CART',
+            CLEAR_CART: 'CLEAR_CART'
+        }
+
+        // necesitamos un estado inicial
+        const initialState = []
+        // y un Reducer
+        const reducer = (state, action) => {
+            const { type: actionType, payload: actionPayload } = action
+            switch (action.type) {
+                case CART_ACTION_TYPES.ADD_TO_CART: {
+                    const productInCartIndex = state.findIndex(item => item.id === action.payload.id)
+
+                    if(productInCartIndex >= 0) {
+                        const newState = structuredClone(state)
+                        newState[productInCartIndex].quantity += 1
+                        return newState                                  => devuelve directamente el nuevo estado
+                    }
+
+                    // producto no está en el carrito
+                    return [
+                        ...state,
+                        {
+                            ...actionPayload,   // product
+                            quantity: 1
+                        }
+                    ]
+                }
+
+                case CART_ACTION_TYPES.REMOVE_FROM_CART: {
+                    const { id } = actionPayload
+                    return state.filter(item => item.id != id)
+                }
+
+                case CART_ACTION_TYPES.CLEAR_CART: {
+                    return initialState
+                }
+            }
+            return state
+        }
+
+    También adaptaríamos con el enumerado las llamadas de nuestro dispatch.
+
+179. IMPORTANTE: otras formas de hacer el cambio del elemento en nuestro estado:
+    Ej. 1. la que tenemos con structuredClone
+        if(productInCartIndex >= 0) {
+            const newState = structuredClone(state)             => esta es la más legible y fácil de hacer
+            newState[productInCartIndex].quantity += 1
+            return newState                                  
+        }
+    Ej. 2. Con slice (seguramente la mas eficiente)
+        if(productInCartIndex >= 0) {
+            const newState = [
+                ...state.slice(0, productInCartIndex),          => coje los elementos desde el 0 hasta el indice que sabemos
+                { ...state[productInCartIndex], quantity: state[productInCartIndex].quantity + 1 },     => modifica la cantidad del elemento 
+                ...state.slice(productInCartIndex + 1)          => coje el resto de elementos
+            ]
+            return newState
+        }
+    Ej. 3. Con map:
+        if(productInCartIndex >= 0) {
+            const newState = state.map(item => {
+                if (item.id === id) {
+                    return {
+                        ...item,
+                        quantity: item.quantity + 1
+                    }
+                }
+            })
+            return newState
+        }
+
+180. Por útimo añadimos el uso de localStorage para guardar y recuperar nuestro carrito:
+    Ej.
+        // Leer
+        export const cartInitialState = JSON.parse(window.localStorage.getItem('cart')) || []
+
+        // creamos la función para guardar en el localStorage
+        export const updateLocalStorage = state => {
+            window.localStorage.setItem('cart', JSON.stringify(state))
+        }
+
+        // hacemos las correspondientes llamadas en todo los sitios susceptibles de cambio:
+        - En cada acción del reducer justo antes de devolver el state nuevo:
+            updateLocalStorage(newState)
 
 ---------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------  
+
+
+Aprende a crear React Router desde cero y publica el paquete
+https://www.youtube.com/watch?v=K2NcGYajvY4
+---------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------- 
+
+181. La práctica consiste en Crear un React Router desde cero:
+    # Crea un React Router desde cero
+
+    - [x] Instalar el linter
+            npm install eslint --save-dev
+            npx eslint --init               => si quieres inicializarlo
+            npm install standard -D         => si quieres añadir directamente unas reglas
+    - [x] Crear una forma de hacer MPAs (Multiple Page Application)
+    - [x] Crea una forma de hacer SPAs (Single Page Applications)
+    - [x] Poder navegar entre páginas con el botón de atrás
+    - [x] Crear componente Link para hacerlo declarativo
+    - [x] Crear componente Router para hacerlo más declarativo
+    - [x] Soportar ruta por defecto (404)
+    - [x] Soportar rutas con parámetros
+    - [x] Componente <Route /> para hacerlo declarativo
+    - [x] Lazy Loading de las rutas
+    - [x] Hacer un i18n con las rutas
+    - [x] Testing
+    - [x] Publicar el paquete en NPM
+
+
+182. Utilizamos un link para establecer unos estilos tipo bootstrap pero más pequeño:
+    Ej.
+        <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+
+183. Inicialmente montamos 2 páginas que nos permiten navegar entre ellas, saltando de una a otra, y renderizando de nuevo toda la página. Esto es lo que se llama:
+    MPAs o Multiple Page Application.
+
+184. Para crear una SPA vamos primero a crear una funcion de navegacion.
+    Ej.
+        const NAVIGATION_EVENT = 'pushstate'
+
+        function navigate(href) {
+            window.history.pushState({}, '', href)   => cambia la url de la barra de direcciones pero sin navegar a la página
+            // crear un evento personalizado para avisar de que hemos cambiado la url
+            const navigationEvent = new Event(NAVIGATION_EVENT)
+            // lanzamos el evento para quien lo quiera escuchar
+            window.dispatchEvent(navigationEvent)
+        }
+
+185. **> CLAVE <** ==>> Añadimos un useEffect para escuchar nuestro evento:
+    Ej.
+        useEffect(() => {
+            const onLocationChange = () => {                => importante guardar en const la funcion a escuchar y luego eliminar
+                setCurrentPath(window.location.pathname)
+            } 
+
+            // Escuchamos el evento de navegación
+            window.addEventListener(NAVIGATION_EVENT, onLocationChange)
+            // Escuchamos el evento del navegador cuando damos al boton de ir para atrás
+            window.addEventListener('popstate', onLocationChange)
+
+            return () => {
+                // Limpiamos el evento al desmontar el componente
+                window.removeEventListener(NAVIGATION_EVENT, onLocationChange)
+                window.removeEventListener('popstate', onLocationChange)
+            }
+        }, [])
+
+186. IMPORTANTE: <button onClick={navigate('/about')}>Go to About Page</button> esto no funciona porque está ejecutando la funcion antes de que hagamos click, debemos 
+    hacer:  <button onClick={() => navigate('/about')}>Go to About Page</button>
+
+187. **> CLAVE <** ==>> Problema: si vamos hacia atrás en el navegador no cambia el contenido de la página a pesar de que cambia la url. Escuchamos el evento que genera el navegador al dar al 
+    botón de ir hacia atrás: Ej. window.addEventListener('popstate', onLocationChange)
+
+188. **> CLAVE <** ==>> Si ponemos un Button para navegar por una página web este no es detectado por los rastreadores de navegabilidad y por lo tanto es un problema de accesibilidad para 
+    personas discapacitadas que no podrán verlo y en consecuencia usarlo. Para ello es mejor usar anchor (ancla). Además de que el botón si le das con el raton y boton derecho no presenta las opciones
+    del ancla de abrir en otra pestaña o ... Por lo que NO HAY QUE USAR UN BUTTON PARA HACER NAVEGACION.
+    Ej. 
+        <a href="/about">Ir a la página About</a>
+    En React (SPA)
+    En React, usamos a solo para enlaces fuera de la app. Para navegación dentro de la app (SPA), se recomienda usar <Link> de React Router o tu propio componente, para evitar recargar toda la página:
+
+        import { Link } from 'react-router-dom'
+
+        <Link to="/about">About Page</Link>
+    Esto simula la navegación sin recargar el navegador (client-side routing).
+
+189. Creamos un Link.jsx donde su función principal tiene en cuenta la navegación con un click:
+    Ej.
+        export function Link({ target, to, ...props }) {          => **> CLAVE <** ==>> usa el operador rest para recibir el resto de propiedades que pongamos en nuestras llamadas, solo extrae de forma directa el target y el to
+            const handleClick = (event) => {
+                // Prevenir el comportamiento por defecto del enlace => si no hacemos esto nos recargará la página de nuevo y no sería SPA
+                event.preventDefault()          
+                navigate(to)
+            }
+
+            return <a onClick={handleClick} href={to} target={target} {...props} />     **> CLAVE <** ==>> inyecta todas las propiedades que nos llegan al elemento <a>    
+        }
+
+    PROBLEMA: solo tenemos en cuenta el Click del ratón, no hace caso de las combinaciones de teclas que combinadas con el click deben abrir nueva ventana o pestaña
+    para esa navegación. Ejemplo MAYUSCULAS + Click: abre en nueva ventana. CONTROL + Click: abre en nueva pestaña
+
+190. **> CLAVE <** ==>> nuestro ancla (anchor) pinta el título porque en realidad al pasarle las ...props le estamos pasando el children de la forma: children={props.children}
+    Por eso tiene acceso a los datos.
+
+191. Creamos nuestro Router como lo tenemos en react:
+    Definimos las rutas como:
+    Ej.
+        const routes = [
+            {
+                path: '/',
+                component: HomePage
+            },
+            {
+                path: '/about',
+                component: AboutPage
+            }
+        ]
+    Creamos la función de nuestro Router que hace lo que ya teníamos en nuestra App para las SPA añadiendo un control para establecer la Page a renderizar según nuestras rutas
+    y el estado currentPath:
+    Ej.
+        function Router ({ routes = [], defaultComponent: DefaultComponent = () => <h1>404 Not Found</h1> }) {
+            const [currentPath, setCurrentPath] = useState(window.location.pathname)
+
+            useEffect(() => {
+                const onLocationChange = () => {
+                   setCurrentPath(window.location.pathname)
+                } 
+
+                // Escuchamos el evento de navegación
+                window.addEventListener(EVENTS.PUSHSTATE, onLocationChange)
+                // Escuchamos el evento del navegador cuando damos al boton de ir para atrás
+                window.addEventListener(EVENTS.POPSTATE, onLocationChange)
+
+                return () => {
+                    // Limpiamos el evento al desmontar el componente
+                    window.removeEventListener(EVENTS.PUSHSTATE, onLocationChange)
+                    // Escuchamos el evento del navegador cuando damos al boton de ir para atrás
+                    window.addEventListener(EVENTS.POPSTATE, onLocationChange)
+                }
+            }, [])
+
+            const Page = routes.find(route => route.path === currentPath)?.component    => indicamos el componente a renderizar segun la ruta encontrada
+            return Page ? <Page /> : <DefaultComponent />                               => si lo hemos encontrado lo renderizamos, sino el por defecto
+            }
+
+192. Modificamos ya nuestro renderizado de main con las rutas:
+    Ej.
+        function App() {
+            return (
+                <main>
+                    <Router routes={routes} />
+                </main>
+            )
+        }
+
+193. Separamos nuestra función Router a un componente Router.jsx y simplificamos nuestro componente App.jsx:
+    Ej.
+        import './App.css'
+        import HomePage from './pages/Home'
+        import AboutPage from './pages/About'
+        import {Router} from './Router'
+
+        const routes = [
+            {
+                path: '/',
+                component: HomePage
+            },
+            {
+                path: '/about',
+                component: AboutPage
+            }
+        ]
+
+        function App() {
+            return (
+                <main>
+                    <Router routes={routes} />
+                </main>
+            )
+        }
+
+        export default App
+
+194. Una ruta protegida se consigue simplemente añadiendo un if:
+    Ej.
+        function App() {
+            const [currentPath, setCurrentPath] = useState(window.location.pathname)
+            const isAuthenticated = true // o false, según tu lógica
+
+            return (
+                <main>
+                    {currentPath === '/' && <HomePage />}
+                    {currentPath === '/about' && <AboutPage />}
+                    {currentPath === '/profile' && (
+                        isAuthenticated
+                        ? <ProfilePage />
+                        : <p>Debes iniciar sesión para ver esta página</p>
+                    )}
+                </main>
+            )
+        }
+
+195. IMPORTANTE: si quieres que tu pantalla se situa al principio de todo al mostrarse:
+    Ej.
+        window.scrollTo( 0, 0 )
+
+    Esto se podría aplicar en el Link:
+    Ej.
+        export function Link({ resetScroll, target, to, ...props }) {           => añadimos un booleano resetScroll
+            const handleClick = (event) => {
+                // tenemos en cuenta las teclas que se pueden combinar con el click
+                const isMainEvent = event.button === BUTTONS.primary    
+                const isModifiedEvent = event.metaKey || event.altKey || event.ctrlKey || event.shiftKey    
+                const isManageableEvent = target === undefined || target === '_self' || target === ''    
+
+                if(isMainEvent && isManageableEvent && !isModifiedEvent) {
+                    // Prevenir el comportamiento por defecto del enlace
+                    event.preventDefault()           
+                    // navegacion con SPA
+                    navigate(to) 
+                    // si tenemos que hacer el reset del scroll lo hacemos
+                    resetScroll && window.scrollTo( 0, 0 )
+                }
+            }
+
+            return <a onClick={handleClick} href={to} target={target} {...props} />
+        }
+
+196. Para instalar rutas con parámetros o dinámicas necesitamos instalar una dependencia:  npm install path-to-regexp -E
+    Esto instala path to regex que es una de las librerías más famosas de node.js
+    Una ruta dinámica sería del tipo:
+    Ej.
+        const appRoutes = [
+            {
+                path: '/',
+                component: HomePage
+            },
+            {
+                path: '/about',
+                component: AboutPage
+            },
+            {
+                path: '/search/:query',                   => ruta dinámica
+                component: () => <h1>Search Page</h1>
+            }
+        ]
+
+    Modificamos nuestro Router para buscar en la url con match de regex y ver si encuentra la ruta dentro de las válidas:
+    Ej.
+        import { useEffect, useState } from 'react'
+        import { EVENTS } from './consts'
+        import { match } from 'path-to-regexp'
+
+        export function Router ({ routes = [], defaultComponent: DefaultComponent = () => <h1>404 Not Found</h1> }) {
+            const [currentPath, setCurrentPath] = useState(window.location.pathname)
+
+            useEffect(() => {
+                const onLocationChange = () => {
+                    setCurrentPath(window.location.pathname)
+                } 
+
+                // Escuchamos el evento de navegación
+                window.addEventListener(EVENTS.PUSHSTATE, onLocationChange)
+                // Escuchamos el evento del navegador cuando damos al boton de ir para atrás
+                window.addEventListener(EVENTS.POPSTATE, onLocationChange)
+
+                return () => {
+                    // Limpiamos el evento al desmontar el componente
+                    window.removeEventListener(EVENTS.PUSHSTATE, onLocationChange)
+                    // Escuchamos el evento del navegador cuando damos al boton de ir para atrás
+                    window.addEventListener(EVENTS.POPSTATE, onLocationChange)
+                }
+            }, [])
+
+            let routeParams = {}
+            const Page = routes.find(({path}) => {
+                if(path === currentPath) return true
+
+                const matcherUrl = match( path, { decode: decodeURIComponent })     => busqueda del path con un parámetro de configuración decodeURIComponent
+                const matched = matcherUrl(currentPath)                             => mira si para el currentpath encontramos una ruta que cumpla el matcherUrl
+                if (!matched) return false                                          => no la encuentra
+
+                routeParams = matched.params    // ej. { query: 'javascript' }      => pasamos los parámetros de la busqueda que ha sido ok        
+                return true                                                         => encontrada
+            })?.component
+
+            return Page ? <Page routeParams={routeParams} /> : <DefaultComponent routeParams={routeParams} />   => le pasamos los parámetros de la búsqueda a la Page a renderizar
+        }
+
+    Por último ya podemos presentar o acceder a los parámetros en el propio componente renderizado:
+    Ej.
+        const appRoutes = [
+            {
+                path: '/',
+                component: HomePage
+            },
+            {
+                path: '/about',
+                component: AboutPage
+            },
+            {
+                path: '/search/:query',                   
+                component: ({routeParams}) => <h1>Search Page {routeParams.query}</h1>
+            }
+        ]
+
+197. **> CLAVE <** ==>> Si ponemos   const Page = routes.find(condicion)?.component si la parte de la izquierda del ? es null ya no se evalua la parte de la derecha
+    Evitando la petada por ser null que da al intentar acceder a un atributo que es null.
+
+198. **> CLAVE <** ==>> Las queryStrings no deben formar parte a nivel de renderizado de nuestro router, son algo a parte del renderizado, son parámetros para la página y
+    no necesariamente para renderizar. Es una mala práctica relacionar el renderizado con las queryStrings.
+
+199. **> CLAVE <** ==>> en react podemos traer unas utilidades para iterar con children, están en la librería Children.
+    Ej.
+        import { useEffect, useState, Children } from 'react'
+    Nos permiten usar map, toArray, y otras opciones sobre los children.
+    En este ejemplo podemos ver como leemos las props de los children:
+    Ej.
+        const routesFromChildren = Children.map(children, ({props, type}) => {
+            const {name} = type
+            const isRoute = name === 'Route' || name === 'RouteWithParams'
+
+            return isRoute ? props : null
+        })
+
+200. **> CLAVE <** ==>> routesFromChildren.filter(Boolean) : esto filtra el array routesFromChildren eliminando todos los elementos que son false (es decir: false, 
+    null, undefined, 0, '', NaN). En JavaScript, pasar Boolean como argumento a .filter() es un truco común para limpiar un array de valores no válidos.
+
+201. **> CLAVE <** ==>> la carga tardía de páginas o componentes es importante por rendimiento, ya que si en nuestra App tenemos imports de los componentes o páginas que vamos a renderizar en 
+    nuestras rutas cuando accedamos, aunque no se muestre nada más que el primero se cargarán todos.
+    Para solucionar este problema usamos la función lazy de react 
+    Ej.
+        import { lazy } from 'react'
+    Entonces en lugar de hacer imports estáticos de nuestras páginas y componentes lo hacemos de forma dinámica y solo se importará cuando lo queremos usar:
+    Ej.
+        // imports estáticos
+        import HomePage from './pages/Home'
+        import AboutPage from './pages/About'
+
+        // imports dinámicos
+        const LazyHomePage = lazy(() => import('./pages/Home.jsx'))
+        const LazyAboutPage = lazy(() => import('./pages/About.jsx'))
+
+    De esta forma LazyHomePage se puede usar en cualquier parte del App, pero solo se importará la primera vez que se llame para renderizar. Pero hay que envolver los 
+    componentes con el componente <Suspense> porque hay que indicarle que falta una parte de código por cargar:
+    Ej.
+        function App() {
+            return (
+                <main>
+                    <Suspense fallback={<h1>Loading...</h1>}>               => el fallback es para mostrar algo mientras cargamos
+                        <Router routes={appRoutes}>
+                        <Route path='/' component={LazyHomePage} />
+                        <Route path='/about' component={LazyAboutPage} />
+                        </Router>
+                    </Suspense>
+                </main>
+            )
+        }
+    
+202. **> CLAVE <** ==>> TESTING con VITEST
+    1. Instalamos la dependencia: npm install vitest -D
+    2. Modificamos el package.json añadiendo vitest:
+        Ej.
+            "scripts": {
+                "dev": "vite",
+                "build": "vite build",
+                "lint": "eslint .",
+                "preview": "vite preview",
+                "test": "vitest"
+            },
+    3. Creamos un test de prueba en un fichero NNNNNNN.test.jsx  donde NNNNNNN es el nombre del fichero, por ejemplo Router.test.jsx
+        Ej.
+            import { describe, it, expect } from "vitest";
+            describe("Router", () => {  
+                it("should work", () => {
+                    expect(1).toBe(1); 
+                });
+            })
+    4. Ejecutamos el test: 
+        Ej.
+            npm run test
+        Resultado:
+            ✓ src/Router.test.jsx (1 test) 4ms
+            ✓ Router > should work 2ms
+
+            Test Files  1 passed (1)
+                Tests  1 passed (1)
+            Start at  22:15:26
+            Duration  657ms (transform 182ms, setup 0ms, collect 156ms, tests 4ms, environment 0ms, prepare 187ms)
+
+            PASS  Waiting for file changes...
+    5. Instalamos algunas herramientas:
+        Ej.
+            npm install happy-dom @testing-library/react -D
+    6. En el vite.config.js ponemos para test:
+        Ej.
+            import { defineConfig } from 'vite'
+            import react from '@vitejs/plugin-react-swc'
+
+            // https://vitejs.dev/config/
+            export default defineConfig({
+                plugins: [react()],
+                test: {
+                    environment: 'happy-dom'
+                }
+            })
+    7. Hacemos un test real de renderizado con las rutas en vacío:
+        Ej.
+            import { describe, it, expect } from "vitest";
+            import { render } from "@testing-library/react";        // importar la funcion render
+            import { Router } from "./Router";
+
+            describe("Router", () => {  
+                it("should render without problems", () => {
+                    render(<Router routes={[]} />);             // render con las rutas en vacío
+                });
+            })
+    8. Ejecutamos el test:
+        Ej.
+            npm run test
+        Resultado:
+             DEV  v3.2.4 C:/Users/Jose/Documents/practicasReact/midu-router
+
+            ✓ src/Router.test.jsx (1 test) 22ms
+            ✓ Router > should render without problems 20ms
+
+            Test Files  1 passed (1)
+                Tests  1 passed (1)
+            Start at  22:42:05
+            Duration  1.70s (transform 71ms, setup 0ms, collect 418ms, tests 22ms, environment 754ms, prepare 185ms)
+
+            PASS  Waiting for file changes...
+                press h to show help, press q to quit
+    9. Añadimos un test de pantalla revisando el contenido con screen:
+        Ej.
+            import { describe, it, expect } from "vitest";
+            import { render, screen } from "@testing-library/react";        // importar la funcion screen
+            import { Router } from "./Router";
+
+            describe("Router", () => {  
+                it("should render without problems", () => {
+                    render(<Router routes={[]} />);             // render con las rutas en vacío
+                });
+
+                it('should render 404 if no routes match', () => {
+                    render(<Router routes={[]} defaultComponent={() => <h1>404</h1>} />)    => renderiza el defaultComponent al poner rutas vacías
+                    expect(screen.getByText('404')).toBeTruthy()                            => comprueba que en pantalla tengamos este mensaje: 404
+                })
+            })
+    10. ejecutamos los test:
+        Ej.
+            npm run test
+        Resultado:
+             DEV  v3.2.4 C:/Users/Jose/Documents/practicasReact/midu-router
+
+            ✓ src/Router.test.jsx (2 tests) 29ms
+            ✓ Router > should render without problems 20ms
+            ✓ Router > should render 404 if no routes match 8ms
+
+            Test Files  1 passed (1)
+                Tests  2 passed (2)
+            Start at  22:50:50
+            Duration  1.69s (transform 74ms, setup 0ms, collect 429ms, tests 29ms, environment 736ms, prepare 183ms)
+
+            PASS  Waiting for file changes...
+                press h to show help, press q to quit
+    11. añadimos un método de limpiado al principio antes de cada test:
+        Ej.
+            import { describe, it, expect, beforeEach } from "vitest";
+            import { render, screen, cleanup } from "@testing-library/react";   // traemos cleanup
+            import { Router } from "./Router";
+
+            describe("Router", () => {  
+                beforeEach(() => {
+                    cleanup();  // limpia el DOM antes de cada test
+                });
+                it("should render without problems", () => {
+                    render(<Router routes={[]} />);  // render con las rutas en vacío
+                    expect(true).toBeTruthy();         
+                });
+
+                it('should render 404 if no routes match', () => {
+                    render(<Router routes={[]} defaultComponent={() => <h1>404</h1>} />)    // renderiza el defaultComponent al poner rutas vacías
+                    expect(screen.getByText('404')).toBeTruthy()                            // comprueba que en pantalla tengamos este mensaje: 404
+                })
+            })
+    12. Recomendado instalar la extensión:
+            Vitest
+            vitest.dev            
+            A Vite-native testing framework. It's fast!
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------- 
