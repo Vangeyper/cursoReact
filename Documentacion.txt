@@ -4010,7 +4010,7 @@ https://www.youtube.com/watch?v=K2NcGYajvY4
 
             PASS  Waiting for file changes...
                 press h to show help, press q to quit
-    11. añadimos un método de limpiado al principio antes de cada test:
+    11. añadimos un método de limpiado que se ejecutará antes de cada test:
         Ej.
             import { describe, it, expect, beforeEach } from "vitest";
             import { render, screen, cleanup } from "@testing-library/react";   // traemos cleanup
@@ -4035,7 +4035,136 @@ https://www.youtube.com/watch?v=K2NcGYajvY4
             vitest.dev            
             A Vite-native testing framework. It's fast!
 
+            Vitest se puede utilizar con mas entornos no solo con vite, pero por dentro lleva vite.
 
+    13. Hacemos un test para verificar nuestras rutas, pero tenemos el problema de simular el path correcto de nuestras rutas, por lo que seguramente nos petaría.
+        Para ello hacemos uso de una utilidad:
+            Ej.
+                it('should render the component of the first route that matches', () => {                    
+                    const routes = [
+                    {
+                        path: '/',
+                        Component: () => <h1>Home</h1>
+                    },
+                    {
+                        path: '/about',
+                        Component: () => <h1>About</h1>
+                    }
+                    ]
+
+                    render(<Router routes={routes} />)
+                    expect(screen.findByText('About')).toBeTruthy()
+                })
+
+            Este test no funcionará y dará error por las rutas.
+        Si vamos a la línea en la que obtenemos el path en la aplicación vemos:
+            Ej.
+                const [currentPath, setCurrentPath] = useState(window.location.pathname)
+        Vamos a exportar este path mediante una utilidad en utils.js:
+            Ej.
+                export const getCurrentPath = () => window.location.pathname
+        Ahora cambiamos las apariciones del window.location.pathname por la llamada a nuestra utilidad:
+            Ej.
+                const [currentPath, setCurrentPath] = useState(getCurrentPath())
+            Ej.
+                useEffect (() => {
+                    const onLocationChange = () => {
+                        setCurrentPath(getCurrentPath())
+                    }
+                }
+                ...
+                }, [])
+        Ahora podemos importar ese método en nuestro archivo de test:
+            Router.test.jsx
+            Ej.
+                import { getCurrentPath } from './utils.js'
+        Tambien importamos la utilidad vi de vitest que nos permitirá mockear:
+            Ej. 
+                import { describe, it, expect, beforeEach, vi } from "vitest";
+
+                vi.mock('./utils/getCurrentPath.js', () => ({
+                  getCurrentPath: vi.fn()                       => le decimos que en vez de la función que era es una función de vi, a la que podremos cambiar cuando queramos el valor devuelto
+                }))
+
+        En el beforeEach borramos todos los mocks anteriores que tengamos:
+            Ej.
+                describe('Router', () => {
+                    beforeEach(() => {
+                        cleanup()
+                        vi.clearAllMocks()
+                    })
+                    ...
+                )
+        Ahora podemos modificar nuestro path justo antes de cada test:
+            Ej.
+                it('should render the component of the first route that matches', () => {
+                    getCurrentPath.mockReturnValue('/about')       // le indicamos que es /about haciendo cierto el test
+
+                    const routes = [
+                    {
+                        path: '/',
+                        Component: () => <h1>Home</h1>
+                    },
+                    {
+                        path: '/about',
+                        Component: () => <h1>About</h1>
+                    }
+                    ]
+
+                    render(<Router routes={routes} />)
+                    expect(screen.findByText('About')).toBeTruthy()   // usamos findByText porque es asíncrono y tiene el await, mientras que el getByText no
+                })
+            
+    14. Podemos añadir el script test:ui al package.json que nos permitirá ver un control de los tests que tenemos y ejecutarlos y demás en un entorno gráfico dentro de chrome:
+        Ej. Package.json
+            "scripts": {
+            "dev": "vite",
+            "build": "vite build",
+            "lint": "eslint .",
+            "preview": "vite preview",
+            "test": "vitest",
+            "test:ui": "vitest --ui"
+        }, 
+
+        Luego ejecutamos desde el terminal npm run test:ui y nos abrirá con el explorador una opción 
+
+    15. Para probar el Link y que podemos saltar entre páginas hacemos el último test:
+        Ej.
+            import { describe, it, expect, beforeEach, vi } from 'vitest'
+            import { render, screen, cleanup, fireEvent } from '@testing-library/react'
+            import { Router } from './components/Router.jsx'
+            import { Route } from './components/Route.jsx'
+            import { Link } from './components/Link.jsx'
+            import { getCurrentPath } from './utils/getCurrentPath.js'
+
+            it('should navigate using Links', async () => {
+                getCurrentPath.mockReturnValueOnce('/')     // OJO este solo mockea el valor de la función una vez
+
+                render(
+                <Router>
+                    <Route
+                    path='/' Component={() => {
+                        return (
+                        <>
+                            <h1>Home</h1>
+                            <Link to='/about'>Go to About</Link>
+                        </>
+                        )
+                    }}
+                    />
+                    <Route path='/about' Component={() => <h1>About</h1>} />
+                </Router>
+                )
+
+                // Click on the link
+                const anchor = screen.getByText(/Go to About/)
+                fireEvent.click(anchor)
+
+                const aboutTitle = await screen.findByText('About')
+
+                // Check that the new route is rendered
+                expect(aboutTitle).toBeTruthy()
+            })      
 
 ---------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------- 
