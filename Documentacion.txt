@@ -4166,5 +4166,156 @@ https://www.youtube.com/watch?v=K2NcGYajvY4
                 expect(aboutTitle).toBeTruthy()
             })      
 
+203. PUBLICAR el proyecto:
+    Se trata de publicarlo como un paquete que podamos utilizar desde cualquier sitio.
+    
+    1. Modificamos el package.json añadiendo el script prepare:
+        Ej.
+            "scripts": {
+            "dev": "vite",
+            "build": "vite build",
+            "prepare": "",
+            "lint": "eslint .",
+            "preview": "vite preview",
+            "test": "vitest",
+            "test:ui": "vitest --ui"
+        },
+
+        Usaremos el prepare para preparar el despliegue.
+
+    2. Vamos a instalar SWC que es una alternativa a Babel que te permite compilar tus ficheros para que puedas utilizarlos sin un compilador.
+        Ej.
+            npm install @swc/cli @swc/core -D
+        
+    3. Ejecutamos el swc:
+        Usamos npx para ejecutar un paquete sin instalarlo globalmente o para ejecutar scripts definidos en package.json
+        Ej.
+            npx swc ./src/Router.jsx
+        
+    4. Queremos renderizar todos los ficheros jsx del src:
+        Ej.
+            npx swc src -d lib
+
+        Esto los pone en el directorio lib
+
+        Nos da error porque hay que adaptar el SWC con un archivo de configuración para cambiar sus valores por defecto:
+        
+        El error ocurre porque SWC no soporta JSX por defecto en archivos .jsx si no tienes configurado el parser para JSX.
+        Además, SWC no soporta fragmentos (<>...</>) ni JSX avanzado sin configuración adicional.
+
+        **> CLAVE <** ==>> ¿Por qué te da errores como "Expression expected"?
+            SWC necesita que le indiques que el parser debe soportar JSX.
+            Si usas fragmentos (<>...</>), asegúrate de que el parser está configurado para soportarlos.
+            SWC no transpila código de test (.test.jsx) ni código React moderno sin configuración adecuada.
+
+        **> CLAVE <** ==>> ¿Cómo solucionarlo?
+            1. Crea un archivo de configuración para SWC 
+                Crea un archivo llamado .swcrc en la raíz de tu proyecto con este contenido: .swcrc
+                Ej.
+                    {
+                        "jsc": {
+                            "parser": {
+                                "syntax": "ecmascript",
+                                "jsx": true
+                            },
+                            "transform": {
+                                "react": {
+                                    "runtime": "automatic"
+                                }
+                            }
+                        }
+                    }
+                Esto le dice a SWC que soporte JSX y React moderno.
+
+
+    5. Ponemos esta instrucción en el script prepare de nuestro package.json
+        Ej.
+            "scripts": {
+            "dev": "vite",
+            "build": "vite build",
+            "prepare": "npx swc src -d lib",
+            "lint": "eslint .",
+            "preview": "vite preview",
+            "test": "vitest",
+            "test:ui": "vitest --ui"
+        },
+
+        **> CLAVE <** ==>> prepare es un script especial en nuestro package.json que se ejecuta justo antes de nuestro publish
+
+    6. En nuestro package.json indicamos la versión y el main que será nuestro punto de entrada:
+        Ej.
+            "version": "0.0.1",
+            "main": "lib/index.js",
+            "module": "lib/index.js",
+            "type": "module",
+
+        Tendremos que crear el src/index.jsx 
+            Ej.
+                export { Router } from './components/Router'
+                export { Link } from './components/Link'
+                export { Route } from './components/Route'
+
+    7. Para poder borrar los ficheros que nos interesan que no aparezcan ya que el --ignore no parece funcionar y los genera como el App.js o el main.js 
+        Ej.
+            npm install -D rimraf
+        En el prepare del package.json pongo:
+        Ej.
+            "prepare": "swc src -d lib && rimraf --glob lib/**/*.test.js lib/**/*.spec.js lib/**/main.js lib/**/App.js"
+        Al instalar rimraf o en algun otro momento se ha desconfigurado swc y he tenido que volver a instalarlo (paso 2)
+    8. Para poder copiar los ficheros de js restantes como consts.js
+        Ej.
+            npm install -D cpx
+        En el prepare usamos cpx
+
+    9. Probamos si funciona el script: prepare
+        Ej.
+            npm run prepare
+    10. Cambiamos las dependencias para que react y react-dom pasen a no instalarlas nosotros sino que ya estén instaladas en el entorno donde despleguemos: peerDependencies
+        Ej.
+            "dependencies": {
+                "path-to-regexp": "8.2.0",
+                "react": "^19.1.0",
+                "react-dom": "^19.1.0"
+            },
+        Lo modificamos como:
+            "dependencies": {
+                "path-to-regexp": "8.2.0"
+            },
+            "peerDependencies": {
+                "react": "^19.1.0",
+                "react-dom": "^19.1.0"
+            },
+    11. Podemos decirle a nuestro swc que minifique los archivos:
+        Ej. modificamos el .swcrc con: "minify": true
+            {
+                "$schema": "https://json.schemastore.org/swcrc",
+                "jsc": {
+                    "parser": {
+                        "syntax": "ecmascript",
+                        "jsx": true,
+                        "dynamicImport": false,
+                        "privateMethod": false,
+                        "functionBind": false,
+                        "exportDefaultFrom": false,
+                        "exportNamespaceFrom": false,
+                        "decorators": false,
+                        "decoratorsBeforeExport": false,
+                        "topLevelAwait": false,
+                        "importMeta": false
+                    },
+                    "transform": {
+                        "react": {
+                            "runtime": "automatic"
+                        }
+                    },
+                    "target": "es2020",
+                    "loose": true,
+                    "externalHelpers": false,
+                    // Requires v1.2.50 or upper and requires target to be es2016 or upper.
+                    "keepClassNames": false
+                },
+                "minify": true
+            }
+
 ---------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------- 
