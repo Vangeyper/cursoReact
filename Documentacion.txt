@@ -4317,5 +4317,82 @@ https://www.youtube.com/watch?v=K2NcGYajvY4
                 "minify": true
             }
 
+    12. Podemos crear un fichero .npmignore en la raiz del proyecto para evitar que publique archivos no necesarios:
+        Ej. 
+            src
+            public
+    
+    13. Para poder hacer un publish desde npm necesitas tener una cuenta y hacer npm login:
+        - Creamos la cuenta:
+            Ej.
+                npm login
+                Esto nos lleva a poner las credenciales: usuario: vangeyper,  clave: React?????
+                Nos pedirá por correo un codigo de segundo factor de autenticación.
+                Con eso entramos en npm y ya podemos publicar en nuestro entorno visual studio code:
+                
+                npm publish
+                
+                    > midu-router-jose@0.0.13 prepare
+                    > npx swc src -d lib && rimraf --glob lib/**/*.test.js lib/**/*.spec.js lib/**/main.js lib/**/App.js && cpx "src/*.js" lib/
+
+                    Successfully compiled: 12 files with swc (118.63ms)
+                    npm notice
+                    npm notice 📦  midu-router-jose@0.0.13
+                    npm notice Tarball Contents
+                    npm notice 857B .swcrc
+                    npm notice 237B .vscode/launch.json
+                    npm notice 856B README.md
+                    npm notice 844B eslint.config.js
+                    npm notice 436B index.html
+                    npm notice 122B lib/consts.js
+                    npm notice 1.1kB package.json
+                    npm notice 209B vite.config.js
+                    npm notice Tarball Details
+                    npm notice name: midu-router-jose
+                    npm notice version: 0.0.13
+                    npm notice filename: midu-router-jose-0.0.13.tgz
+                    npm notice package size: 2.3 kB
+                    npm notice unpacked size: 4.7 kB
+                    npm notice shasum: 16de27e84dac5eec43b4fefc1495935e1afc46ad
+                    npm notice integrity: sha512-SMj2FajAIeNjx[...]bNLf+5FalCjTA==
+                    npm notice total files: 8
+                    npm notice
+                    npm notice Publishing to https://registry.npmjs.org/ with tag latest and default access
+                    + midu-router-jose@0.0.13
+
+    14. Accedemos a nuestra publicación mediante la url: https://www.npmjs.com/package/midu-router-jose
+        Donde midu-router-jose es el name de nuestro package.json
+        Cualquier persona lo puede instalar ahora solo con 
+        Ej.
+            npm install midu-router-jose
+
+204. Un Custom hook que permitiría capturar todos los parámetros de una query ya sea servidor o cliente sería algo parecido a:
+    Ej.
+        function useQueryParams ({ req } = {}) {
+            const isServer = typeof window === 'undefined'
+            if (isServer) {
+                const { query } = req
+                return query
+            }
+
+            const search = window.location.search
+            const params = new URLSearchParams(search)
+            return Object.fromEntries(params.entries())
+        }
+
+        export default function SearchPage ({ routeParams }) {
+            const { limit } = useQueryParams()
+            console.log(limit)
+            
+            useEffect(() => {
+                document.title = `Has buscado ${routeParams.query}`
+            }, [])
+
+            return (
+                <h1>Has buscado {routeParams.query}</h1>
+            )
+        }
+
+
 ---------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------- 
