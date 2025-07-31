@@ -4394,5 +4394,189 @@ https://www.youtube.com/watch?v=K2NcGYajvY4
         }
 
 
+205. Proyecto con typescript: todo-app-typescript
+    1. Inicializar proyecto con Vite
+        Ej.
+            npm create vite@latest todo-app-typescript
+        Seleccionar React y luego TypeScript + SWC
+
+    2. Añadir linter para TypeScript + React
+        Ej.
+            npx eslint --init
+        Instalar los paquetes que necesite que va pidiendo. 
+        A la pregunta de como queremos usar eslint le decimos que: to check syntax, find problems, and enforce code style.
+        A la pregunta de que tipo de modulos vas a usar en el proyecto: JavaScript Modules (Import/Export)
+        A la pregunta del framework a utilizar: React
+        Nos pregunta si usamos TypeScript: Sí
+        ¿Dónde corre el proyecto? En el browser
+        ¿queremos seguir un estilo popular como guía de estilos? le decimos que sí e indicamos: Standard
+        ¿formato de tu archivo de configuración? Javascript
+        ¿quieres que lo instalemos ahora? Sí
+        ¿que empaquetador quieres utilizar? npm
+
+    3. Configurar alguna cosa para el linter:
+        En el archivo .eslintrc.cjs indicar el project:
+        Ej.
+            parserOptions: {
+                ecmaVersion: 'latest',
+                sourceType: 'module',
+                project: './tsconfig.json'          -> le indicamos donde está la configuración de nuestro proyecto
+            },
+
+    4. Podemos anular avisos del eslint que no queramos que nos aparezcan por la razón que sea:
+        Ej.
+            rules: {
+                "react/react-in-jsx-scope": "off"
+            }
+
+    5. Asegurarnos que tenemos instalada la extensión eslint en visual studio code.
+
+    6. Para que cuando guardemos justo antes nos corrija los posibles fixes podemos meter en el settings.json:
+        Ej.
+            "editor.codeActionsOnSave": {
+                "source.fixAll.eslint": true                             -> este fuerza las correcciones de fixes al guardar, por ejemplo elimina un ; al final de línea si no corresponde
+            } 
+
+    7. Añadir estilos del TodoMVC: 
+        Ej. en el main.tsx importamos los estilos que previamente hemos instalado
+            import 'todomvc-app-css/index.css'
+
+    8. Listar todos los TODOs:
+        Creamos un mock con TODOs de mentira:
+        Ej.
+            const mockTodos = [
+                {
+                    id: '1',
+                    title: 'todo 1',
+                    completed: false
+                },
+                {
+                    id: '2',
+                    title: 'todo 2',
+                    completed: false
+                },
+                {
+                    id: '3',
+                    title: 'todo 3',
+                    completed: false
+                }
+            ]
+
+    **> CLAVE <** ==>> Siempre que en typescript podamos inferir un tipo es mejor hacerlo y no tiparlo de nuevo porque sino estaremos tipando demasiado y estaremos acoplando los tipos de datos
+                       siendo después difícil modificarlos. Si nos ponemos encima de una variable y typescript ya nos infiere correctamente el tipo no hace falta que lo tipemos explícitamente.
+
+    **> CLAVE <** ==>> Las extensiones de nuestros archivos de react con typescript es .tsx
+
+    **> CLAVE <** ==>> Las prop-types es una forma de validar los tipos de nuestras props de forma manual, pero al estar usando typescript no tiene sentido por lo que eliminamos la rule de nuestro linter:
+        Ej.
+            rules: {
+                'react/react-in-jsx-scope': 'off',
+                'react/prop-types': 'off'               -> lo desactivamos para que no se queje el linter
+            }
+
+    **> CLAVE <** ==>> ¿cuál es la diferencia entre type e interface? el type no se puede extender fácilmente, hay que hacer uniones y cosas raras, mientras que una interface es el contrato de un objeto y es fácilmente extendible.
+                       Normalmente si definimos un objeto es mejor utilizar una interface, y en caso contrario es mejor un type, pero es subjetivo.
+
+    IMPORTANTE: definir una interface y luego un tipo como array de esa interface:
+        Ej.
+            interface Todo {
+                id: string
+                title: string
+                completed: boolean
+            }
+
+            type ListOfTodos = Todo[]       ->  tambien se puede declarar como:  type ListOfTodos = Array<Todo>
+
+    9. Al usar TypeScript y linter recibimos un mensaje de que nuestra App tiene que tener un tipo inicialmente:
+        Ej. Tenemos 2 opciones de tipado:
+            const App: JSX.Element = () => { }
+            const App: React.FC = () => { }
+
+        **> CLAVE <** ==>> Si ponemos la opción de JSX.Element al pasarle un parámetro tendremos problemas por la complejidad de declarar los tipos de esos parámetros e inicializarlos, mientras que si usamos React.FC podremos usar 
+                        las props que permetirán definir estos parámetros y sus valores iniciales:
+            Ej.
+                interface Props {
+                    todos: ListOfTodos
+                }        
+                export const Todos: React.FC<Props> = ({ todos }) => { }
+
+                Estas <Props> vendrían a ser como una forma de pasarle parámetros a los tipos de React. Este Props es un genérico, por lo que hay que definir su contenido.
+
+                ESTA ES LA FORMA CORRECTA A DIA DE HOY DE TIPAR UN FUNCTIONAL COMPONENT DE REACT. IMPORTANTE: la versión 17 de react tenía un problema al declarlo así con el uso de children, ahora ya está arreglado.
+
+        **> CLAVE <** ==>> Los Type e Interface se pueden exportar como Modules. Simplemente usamos export e import. Pero hay que indicar en el caso de los tipos que lo son:
+            Ej.
+                import { type ListOfTodos } from '../types'
+
+        **> CLAVE <** ==>> Lo que mejora la experiencia de desarrollo con typescript es que antes de asignar algo te está validando que cumpla el contrato del tipo que estás asignando y si no es así se queja.
+                        Otra cosa es que mejora el intelligence del editor mostrando posibles valores.
+
+        IMPORTANTE: Nomenclatura para poner en un archivo en el que solo tengas declaraciones le añades al nombre antes de la extensión .D
+            Ej.
+                types.d.ts
+    
+        Finalmente para listar los Todos:
+        Ej.
+            export const Todos: React.FC<Props> = ({ todos }) => {
+              return (
+                <ul>
+                    {todos.map(todo => (
+                        <li
+                            key={todo.id}
+                            className={`${todo.completed ? 'completed' : ''}`}
+                        >
+                            <Todo
+                                key={todo.id}
+                                id={todo.id}
+                                title={todo.title}
+                                completed={todo.completed}
+                            />
+                        </li>
+                    ))}
+                </ul>
+                )
+            }
+
+        Creamos el componente Todo.tsx:
+        Ej.
+            **> CLAVE <** ==>> reaprovechamos la declaración de nuestro tipo puesto que es lo mismo que nos llega como prop, no hace falta volver a declarar el tipo o interface.
+
+            import { type Todo as TodoType } from '../types'
+
+            type Props = TodoType
+
+            export const Todo: React.FC<Props> = ({ id, title, completed }) => {
+              return (
+                <>
+                    <div className='view'>
+                        <input
+                            className='toggle'
+                            checked={completed}
+                            type='checkbox'
+                            onChange={() => {}}
+                        />
+                        <label>{title}</label>
+                        <button className='destroy' onClick={() => {}}></button>
+                    </div>
+                </>
+                )
+            }
+
+        Para que se apliquen bien los estilos que hemos importado tenemos que tener un div que envuelva nuestra aplicación del tipo: todoapp
+        Ej.
+            const App = (): JSX.Element => {
+                const [todos] = useState(mockTodos)
+
+                return (
+                    <div className="todoapp">
+                        <Todos todos = { todos } />
+                    </div>
+                )
+            }
+
+    10. Poder borrar un TODO:
+        
+
+
 ---------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------- 
