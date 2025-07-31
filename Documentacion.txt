@@ -4575,8 +4575,93 @@ https://www.youtube.com/watch?v=K2NcGYajvY4
             }
 
     10. Poder borrar un TODO:
-        
+        1. Creamos un handleRemove que recibe una id del todo que tenemos que borrar:
+            Ej.
+                const App = (): JSX.Element => {
+                    const [todos] = useState(mockTodos)
 
+                    const handleRemove = (id: string): void => {
+                        const newTodos = todos.filter( todo => todo.id != id )
+                        setTodos(newTodos)
+                    }
+
+                    return (
+                        <div className="todoapp">
+                            <Todos 
+                                onRemoveTodo = { handleRemove }
+                                todos = { todos } 
+                            />
+                        </div>
+                    )
+                }
+            
+        2. Modificamos el componente Todos.tsx para añadir la nueva prop:
+            Ej.
+                interface Props {
+                    todos: ListOfTodos
+                    onRemoveTodo: (id:string) => void
+                }        
+                export const Todos: React.FC<Props> = ({ todos, onRemoveTodo }) => { 
+                    return (
+                        <ul>
+                            {todos.map(todo => (
+                                <li
+                                    key={todo.id}
+                                    className={`${todo.completed ? 'completed' : ''}`}
+                                >
+                                    <Todo
+                                        key={todo.id}
+                                        id={todo.id}
+                                        title={todo.title}
+                                        completed={todo.completed}
+                                        onRemoveTodo={onRemoveTodo}                 -> implica modificar el Todo.tsx
+                                    />
+                                </li>
+                            ))}
+                        </ul>
+                    )
+                }
+
+        3. Modificamos el Todo.tsx:
+            Ej.
+                import { type Todo as TodoType } from '../types'
+
+            **> CLAVE <** ==>> extendemos un type con la nueva propiedad
+                interface Props extends TodoType {
+                    onRemoveTodo: (id:string) => void       
+                }
+
+                export const Todo: React.FC<Props> = ({ id, title, completed, onRemoveTodo }) => {
+                    return (
+                        <>
+                            <div className='view'>
+                                <input
+                                    className='toggle'
+                                    checked={completed}
+                                    type='checkbox'
+                                    onChange={() => {}}
+                                />
+                                <label>{title}</label>
+                                <button className='destroy' 
+                                    onClick={() => {
+                                        onRemoveTodo(id)
+                                    }}>
+                                </button>
+                            </div>
+                        </>
+                    )
+                }                
+
+            **> CLAVE <** ==>> para evitar drilling de la función onRemoveTodo podríamos hacer un apaño en el Todos.tsx 
+                Ej.
+                    <Todo
+                        key={todo.id}
+                        id={todo.id}
+                        title={todo.title}
+                        completed={todo.completed}
+                        onRemoveTodo={id => {onRemoveTodo(id)}}                 -> implica modificar el Todo.tsx
+                    />                    
+            Aunque no veo que evite el drilling, porque le sigues pasando la propiedad onRemoveTodo al Todo.tsx ¿?
 
 ---------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------- 
