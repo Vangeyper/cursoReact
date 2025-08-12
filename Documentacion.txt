@@ -4665,3 +4665,39 @@ https://www.youtube.com/watch?v=K2NcGYajvY4
 
 ---------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------- 
+
+NOTA DE TIPOS:
+
+**> CLAVE <** ==>> React.Dispatch<React.SetStateAction<T>> no define un tipo de función lambda, sino el tipo de función que React espera como setter de estado para useState.
+
+¿Qué es React.Dispatch<React.SetStateAction<T>>?
+    Es el tipo del setter que devuelve useState.
+Permite dos formas de uso:
+    Pasar el nuevo valor directamente:
+        setSelectedAgentRows([1, 2, 3]);
+    Pasar una función (lambda) que recibe el valor anterior y devuelve el nuevo:
+        setSelectedAgentRows(prev => [...prev, 4]);
+    Esto es lo que se llama una "actualización basada en el valor anterior".
+
+¿Por qué es útil?
+    Permite actualizar el estado de forma segura cuando el nuevo valor depende del anterior.
+    Es el patrón recomendado por React para evitar problemas de concurrencia.
+¿Es una función lambda?
+    No es un tipo de función lambda en sí, pero permite que le pases una función lambda como argumento.
+    El tipo SetStateAction<T> es:
+        type SetStateAction<T> = T | ((prevState: T) => T);
+    Es decir, acepta un valor o una función lambda.
+Ejemplo:
+    const [selectedAgentRows, setSelectedAgentRows] = useState<number[]>([]);
+
+    // Ambas son válidas:
+    setSelectedAgentRows([1, 2, 3]); // valor directo
+    setSelectedAgentRows(prev => [...prev, 4]); // función lambda
+Resumiendo
+    React.Dispatch<React.SetStateAction<T>> es el tipo del setter de estado de React.
+    Permite pasar un valor o una función lambda.
+    No define una lambda, pero sí acepta una.
+Ejemplo:
+
+
+Así, puedes usar ambos estilos de actualización de estado.
