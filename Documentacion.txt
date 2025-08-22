@@ -4701,3 +4701,48 @@ Ejemplo:
 
 
 Así, puedes usar ambos estilos de actualización de estado.
+
+
+
+NOTA DE INFERENCIA DE TIPOS:
+
+¿Qué es React.FC y cuándo usarlo?
+    React.FC (o React.FunctionComponent) es una forma de tipar componentes funcionales en React. Su principal ventaja es que incluye automáticamente el tipo para children, lo cual es útil si tu componente va a renderizar contenido pasado entre etiquetas:
+    Ej.
+        const MyComponent: React.FC = ({ children }) => {
+            return <div>{children}</div>;
+        };
+
+El componente CapacityServices no recibe ni utiliza children. Por lo tanto, no necesitas usar React.FC. Puedes tipar el componente directamente como una función con props:
+    Ej.
+        function CapacityServices({
+            selectedServices,
+            setSelectedServices,
+            selectedAgentRows,
+            setSelectedAgentRows,
+            selectedServicesData,
+            serviceCapacityData,
+        }: CapacityServicesProps) {
+            // ...
+        }
+
+Esto tiene varias ventajas:
+    Evita incluir children innecesariamente.
+    Es más explícito y claro.    
+    Mejora la inferencia de tipos en algunos casos complejos.
+
+¿Cuándo sí usar React.FC?
+    Cuando tu componente va a renderizar children.
+    Cuando quieres aprovechar la inferencia automática de children sin declararlo manualmente.
+
+Si lo declaramos así incorpora children:
+    Ej.
+        const CapacityServices: React.FC<CapacityServicesProps> = ({ 
+            selectedServices, 
+            setSelectedServices, 
+            selectedAgentRows, 
+            setSelectedAgentRows,
+            selectedServicesData,
+            serviceCapacityData 
+        }) => {
+
