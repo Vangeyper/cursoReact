@@ -4746,3 +4746,33 @@ Si lo declaramos así incorpora children:
             serviceCapacityData 
         }) => {
 
+
+**> CLAVE <** ==>> uso de un SharedCapacity.module.css dentro de componentes hijos de un componente padre:
+    Se define en el directorio del padre el SharedCapacity.module.css 
+    Se importa en los componentes que quieran usarlo como: 
+        Ej.
+            import sharedStyles from './SharedCapacity.module.css';
+    Se utiliza de la forma habitual:
+        Ej.
+            <h1 className={sharedStyles["capacity__title"]}>Capacity Estimation</h1>
+    Tienes que incorporar un archivo de tipos para que typescript no de errores de tipos:
+        Creamos el archivo global.d.ts con el contenido:
+            Ej.
+                declare module "*.module.css" {
+                    const classes: { [key: string]: string };
+                    export default classes;
+                }
+
+                declare module "*.module.scss" {
+                    const classes: { [key: string]: string };
+                    export default classes;
+                }
+        Modificamos el tsconfig.app.json si hace falta para incluirlo en el include:
+            Ej.
+                {
+                    "compilerOptions": {
+                        ...
+                    },
+                    "include": ["src", "axios.config.ts", "src/components/App/AppProviders.tsx", "global.d.ts"]
+                }
+        
