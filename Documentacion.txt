@@ -4665,3 +4665,114 @@ https://www.youtube.com/watch?v=K2NcGYajvY4
 
 ---------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------- 
+
+NOTA DE TIPOS:
+
+**> CLAVE <** ==>> React.Dispatch<React.SetStateAction<T>> no define un tipo de función lambda, sino el tipo de función que React espera como setter de estado para useState.
+
+¿Qué es React.Dispatch<React.SetStateAction<T>>?
+    Es el tipo del setter que devuelve useState.
+Permite dos formas de uso:
+    Pasar el nuevo valor directamente:
+        setSelectedAgentRows([1, 2, 3]);
+    Pasar una función (lambda) que recibe el valor anterior y devuelve el nuevo:
+        setSelectedAgentRows(prev => [...prev, 4]);
+    Esto es lo que se llama una "actualización basada en el valor anterior".
+
+¿Por qué es útil?
+    Permite actualizar el estado de forma segura cuando el nuevo valor depende del anterior.
+    Es el patrón recomendado por React para evitar problemas de concurrencia.
+¿Es una función lambda?
+    No es un tipo de función lambda en sí, pero permite que le pases una función lambda como argumento.
+    El tipo SetStateAction<T> es:
+        type SetStateAction<T> = T | ((prevState: T) => T);
+    Es decir, acepta un valor o una función lambda.
+Ejemplo:
+    const [selectedAgentRows, setSelectedAgentRows] = useState<number[]>([]);
+
+    // Ambas son válidas:
+    setSelectedAgentRows([1, 2, 3]); // valor directo
+    setSelectedAgentRows(prev => [...prev, 4]); // función lambda
+Resumiendo
+    React.Dispatch<React.SetStateAction<T>> es el tipo del setter de estado de React.
+    Permite pasar un valor o una función lambda.
+    No define una lambda, pero sí acepta una.
+Ejemplo:
+
+
+Así, puedes usar ambos estilos de actualización de estado.
+
+
+
+NOTA DE INFERENCIA DE TIPOS:
+
+¿Qué es React.FC y cuándo usarlo?
+    React.FC (o React.FunctionComponent) es una forma de tipar componentes funcionales en React. Su principal ventaja es que incluye automáticamente el tipo para children, lo cual es útil si tu componente va a renderizar contenido pasado entre etiquetas:
+    Ej.
+        const MyComponent: React.FC = ({ children }) => {
+            return <div>{children}</div>;
+        };
+
+El componente CapacityServices no recibe ni utiliza children. Por lo tanto, no necesitas usar React.FC. Puedes tipar el componente directamente como una función con props:
+    Ej.
+        function CapacityServices({
+            selectedServices,
+            setSelectedServices,
+            selectedAgentRows,
+            setSelectedAgentRows,
+            selectedServicesData,
+            serviceCapacityData,
+        }: CapacityServicesProps) {
+            // ...
+        }
+
+Esto tiene varias ventajas:
+    Evita incluir children innecesariamente.
+    Es más explícito y claro.    
+    Mejora la inferencia de tipos en algunos casos complejos.
+
+¿Cuándo sí usar React.FC?
+    Cuando tu componente va a renderizar children.
+    Cuando quieres aprovechar la inferencia automática de children sin declararlo manualmente.
+
+Si lo declaramos así incorpora children:
+    Ej.
+        const CapacityServices: React.FC<CapacityServicesProps> = ({ 
+            selectedServices, 
+            setSelectedServices, 
+            selectedAgentRows, 
+            setSelectedAgentRows,
+            selectedServicesData,
+            serviceCapacityData 
+        }) => {
+
+
+**> CLAVE <** ==>> uso de un SharedCapacity.module.css dentro de componentes hijos de un componente padre:
+    Se define en el directorio del padre el SharedCapacity.module.css 
+    Se importa en los componentes que quieran usarlo como: 
+        Ej.
+            import sharedStyles from './SharedCapacity.module.css';
+    Se utiliza de la forma habitual:
+        Ej.
+            <h1 className={sharedStyles["capacity__title"]}>Capacity Estimation</h1>
+    Tienes que incorporar un archivo de tipos para que typescript no de errores de tipos:
+        Creamos el archivo global.d.ts con el contenido:
+            Ej.
+                declare module "*.module.css" {
+                    const classes: { [key: string]: string };
+                    export default classes;
+                }
+
+                declare module "*.module.scss" {
+                    const classes: { [key: string]: string };
+                    export default classes;
+                }
+        Modificamos el tsconfig.app.json si hace falta para incluirlo en el include:
+            Ej.
+                {
+                    "compilerOptions": {
+                        ...
+                    },
+                    "include": ["src", "axios.config.ts", "src/components/App/AppProviders.tsx", "global.d.ts"]
+                }
+        
